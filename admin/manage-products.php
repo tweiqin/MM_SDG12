@@ -2,7 +2,6 @@
 include('../includes/adminheader.php');
 require_once '../config/db.php';
 
-// FIX: 1. Add product_status to the SELECT query.
 $query = "SELECT p.*, p.product_status, u.name AS seller_name 
           FROM products p 
           JOIN users u ON p.seller_id = u.user_id";
@@ -30,7 +29,6 @@ $result = $conn->query($query);
             <tbody>
                 <?php if ($result && $result->num_rows > 0): ?>
                     <?php while ($product = $result->fetch_assoc()):
-                        // Determine status color for inline CSS
                         $status = htmlspecialchars($product['product_status']);
                         $status_color = ($status === 'Unavailable' ? 'red' : 'green');
                         $button_text = ($status === 'Unavailable' ? 'Activate' : 'Deactivate');
