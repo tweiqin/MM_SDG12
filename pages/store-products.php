@@ -3,7 +3,6 @@ session_start();
 require_once '../config/db.php';
 include('../includes/header.php'); 
 
-// Check for seller ID in the URL
 if (!isset($_GET['seller_id']) || !is_numeric($_GET['seller_id'])) {
     echo "<div class='container my-5 alert alert-danger'>Invalid Seller ID.</div>";
     include('../includes/footer.php');
@@ -20,7 +19,7 @@ $stmt_name->execute();
 $seller_name = $stmt_name->get_result()->fetch_assoc()['name'] ?? 'Vendor';
 $stmt_name->close();
 
-// 2. FIX: Fetch all ACTIVE products including the 'quantity' and 'seller_id'
+// 2. Fetch all ACTIVE products including the 'quantity' and 'seller_id'
 $products_query = "SELECT product_id, name, price, original_price, image, quantity, seller_id FROM products 
                    WHERE seller_id = ? AND product_status = 'Available'
                    ORDER BY created_at DESC";
@@ -44,7 +43,7 @@ $stmt->close();
                         $selling_price = (float)$product['price'];
                         $is_discounted = ($original_price > $selling_price && $original_price > 0);
                         
-                        // FIX: Ensure quantity is treated as an integer
+                        // Ensure quantity is treated as an integer
                         $quantity_left = (int)$product['quantity']; 
                     ?>
                         <div class="col-md-3 mb-4">

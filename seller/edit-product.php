@@ -41,10 +41,8 @@ if (isset($_GET['id'])) {
         if (empty($name) || empty($price) || empty($category) || empty($description)) {
             $error = "All fields are required.";
         } else {
-            // FIX: Add product_status = 'Available' to UPDATE query
             $sql = "UPDATE products SET name = ?, original_price = ?, price = ?, category = ?, quantity = ?, description = ?, product_status = 'Available' WHERE product_id = ? AND seller_id = ?";
             $stmt = $conn->prepare($sql);
-            // Types: s=name, d=price (as float/decimal), s=category, s=description, i=product_id, i=seller_id
             $stmt->bind_param('sddsisii', $name, $original_price, $price, $category, $quantity, $description, $product_id, $seller_id);
 
             if ($stmt->execute()) {

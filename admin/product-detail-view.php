@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once '../config/db.php';
-// Use the Admin header since this is part of the Admin workflow
 include('../includes/adminheader.php');
 
 // SECURITY CHECK: Ensure user is logged in
@@ -17,7 +16,7 @@ if (!isset($_GET['product_id']) || empty($_GET['product_id'])) {
 
 $product_id = intval($_GET['product_id']);
 
-// Fetch Product Details and Seller Info (Securely)
+// Fetch Product Details and Seller Info
 $query = "SELECT p.*, p.product_status, u.name AS seller_name FROM products p 
           JOIN users u ON p.seller_id = u.user_id 
           WHERE p.product_id = ?";
@@ -32,7 +31,7 @@ if (!$product) {
     exit;
 }
 
-// Fetch Reviews (Securely)
+// Fetch Reviews
 $reviews_query = "SELECT r.*, u.name FROM reviews r 
                   JOIN users u ON r.user_id = u.user_id 
                   WHERE r.product_id = ? ORDER BY r.created_at DESC";

@@ -1,9 +1,7 @@
 <?php
-//  include database connection
 include('../includes/sellerheader.php');
 require_once '../config/db.php';
 
-// Check if seller is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'seller') {
     header('Location: ../pages/login.php');
     exit();
@@ -115,7 +113,7 @@ $co2_saved = number_format($total_meals_saved * 1.75, 2);
                 </thead>
                 <tbody>
                     <?php
-                    // Fetch detailed orders related to seller's products (SECURELY)
+                    // Fetch detailed orders related to seller's products
                     $orders_query = "
                     SELECT o.order_id, p.name AS product_name, oi.quantity, o.created_at, o.order_status
                     FROM orders o

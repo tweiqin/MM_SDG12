@@ -10,12 +10,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'seller') {
 }
 
 // Fetch products added by the logged-in seller
-$seller_id = $_SESSION['user_id']; // Get the seller's ID from the session
+$seller_id = $_SESSION['user_id'];
 $sql = "SELECT *, product_status FROM products WHERE seller_id = ?";
 $stmt = $conn->prepare($sql);  // Prepare statement to prevent SQL injection
 $stmt->bind_param('i', $seller_id);  // Bind the seller's ID to the query
-$stmt->execute();  // Execute the query
-$result = $stmt->get_result();  // Get the result of the query
+$stmt->execute();
+$result = $stmt->get_result();
 
 ?>
 

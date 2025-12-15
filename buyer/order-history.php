@@ -46,19 +46,19 @@ while ($row = $history_result->fetch_assoc()) {
 
 
 // --------------------------------------------------------------------------
-// STEP 2: FETCH ALL REVIEWS UPFRONT (Resolves "Commands out of sync" error)
+// STEP 2: FETCH ALL REVIEWS UPFRONT 
 // --------------------------------------------------------------------------
 $reviewed_items = [];
 if (!empty($all_order_ids)) {
     // Generate placeholder string for IN clause (e.g., ?, ?, ?)
     $placeholders = implode(',', array_fill(0, count($all_order_ids), '?'));
-    $types = str_repeat('i', count($all_order_ids)); // 'iii...' for integers
+    $types = str_repeat('i', count($all_order_ids));
 
     $reviewed_query = "SELECT order_id, product_id FROM reviews WHERE order_id IN ({$placeholders}) AND user_id = ?";
     $r_stmt = $conn->prepare($reviewed_query);
 
     // Bind all order IDs and the final user ID
-    // We need to pass the array of IDs and then the user ID to bind_param
+    // Pass the array of IDs and then the user ID to bind_param
     $bind_params = array_merge([$types . 'i'], $all_order_ids, [$user_id]);
     
     // Use call_user_func_array to bind the dynamic parameters
@@ -68,7 +68,6 @@ if (!empty($all_order_ids)) {
     $r_result = $r_stmt->get_result();
     
     while($row = $r_result->fetch_assoc()) {
-        // Key format: order_id-product_id
         $reviewed_items[] = $row['order_id'] . '-' . $row['product_id']; 
     }
     $r_stmt->close();

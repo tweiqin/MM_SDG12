@@ -9,10 +9,10 @@ $password = '';
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
-    // OPTION 3: Get sales for current month + last 3 months
+
+    // Get sales for current month + last 3 months
     $currentYearMonth = date('Y-m');
-    
+
     // Get sales for current month (partial)
     $currentMonthStmt = $pdo->prepare("
         SELECT 
@@ -24,7 +24,7 @@ try {
     ");
     $currentMonthStmt->execute([$currentYearMonth]);
     $currentMonth = $currentMonthStmt->fetch(PDO::FETCH_ASSOC);
-    
+
     // Get sales for previous 3 months
     $stmt = $pdo->query("
         SELECT 
@@ -39,28 +39,28 @@ try {
         ORDER BY month_sort DESC
         LIMIT 3
     ");
-    
+
     $previousMonths = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $previousMonths = array_reverse($previousMonths); // Oldest first
-    
+
     // Build complete 4-month array
     $months = [];
     $sales = [];
     $orderCounts = [];
-    
+
     // Add previous months
     foreach ($previousMonths as $month) {
         $months[] = $month['month_display'];
-        $sales[] = (float)$month['monthly_sales'];
-        $orderCounts[] = (int)$month['order_count'];
+        $sales[] = (float) $month['monthly_sales'];
+        $orderCounts[] = (int) $month['order_count'];
     }
-    
+
     // Add current month
     $months[] = date('M Y');
-    $sales[] = (float)($currentMonth['monthly_sales'] ?? 0);
-    $orderCounts[] = (int)($currentMonth['order_count'] ?? 0);
-    
-    // If we have less than 4 months total, fill with previous months
+    $sales[] = (float) ($currentMonth['monthly_sales'] ?? 0);
+    $orderCounts[] = (int) ($currentMonth['order_count'] ?? 0);
+
+    // If have less than 4 months total, fill with previous months
     if (count($months) < 4) {
         $needed = 4 - count($months);
         for ($i = 0; $i < $needed; $i++) {
@@ -70,15 +70,15 @@ try {
             array_unshift($orderCounts, 0);
         }
     }
-    
+
     echo json_encode([
         'months' => $months,
         'sales' => $sales,
         'order_counts' => $orderCounts,
         'note' => 'Includes current month data'
     ]);
-    
-} catch(PDOException $e) {
+
+} catch (PDOException $e) {
     echo json_encode(['error' => $e->getMessage()]);
 }
 ?>

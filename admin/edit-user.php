@@ -1,7 +1,6 @@
 <?php
 require_once '../config/db.php';
 
-// Check if user ID is passed
 if (isset($_GET['id'])) {
     $userId = $_GET['id'];
 
@@ -23,7 +22,6 @@ if (isset($_GET['id'])) {
         $updateStmt->bind_param("ssi", $name, $email, $userId);
         $updateStmt->execute();
 
-        // Redirect to manage users page
         header("Location: manage-users.php");
         exit;
     }

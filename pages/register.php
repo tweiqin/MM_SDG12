@@ -96,7 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $target_dir = __DIR__ . "/../assets/images/logos/";
         $target_file = $target_dir . $logo_filename;
 
-        // Check if the directory exists and create it if necessary (Crucial for XAMPP uploads)
+        // Check if the directory exists and create it if necessary (for XAMPP uploads)
         if (!is_dir($target_dir)) {
             // Attempt to create the directory with write permissions
             if (!mkdir($target_dir, 0755, true)) {
@@ -477,12 +477,12 @@ $phone_display_local = format_phone_local_for_display($phone);
             updateFieldState();
         });
 
-        // password toggle buttons (Bootstrap Icons)
+        // password toggle buttons
         document.querySelectorAll('.btn-toggle').forEach(btn => {
             btn.addEventListener('click', function () {
                 const targetSel = this.getAttribute('data-target');
                 const target = document.querySelector(targetSel) || document.querySelector(targetSel.replace(/^#/, ''));
-                // our buttons use data-target "#password" etc. but earlier markup uses id directly; handle both
+                // buttons use data-target "#password" etc. but earlier markup uses id directly; handle both
                 let inputEl = null;
                 if (target && target.tagName === 'INPUT') inputEl = target;
                 else {

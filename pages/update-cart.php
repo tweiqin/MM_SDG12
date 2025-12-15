@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_STRING);
 
     if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
-        
+
         // Fetch current max stock securely
         $stmt = $conn->prepare("SELECT quantity FROM products WHERE product_id = ?");
         $stmt->bind_param("i", $product_id);
@@ -19,15 +19,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($_SESSION['cart'] as &$item) {
             if ($item['product_id'] == $product_id) {
                 if ($action === 'increase') {
-                    // FIX: Check against max stock before increasing
+                    // Check against max stock before increasing
                     if ($item['quantity'] < $max_stock) {
-                        $item['quantity'] += 1; 
+                        $item['quantity'] += 1;
                     } else {
                         // Store message for display on cart.php
                         $_SESSION['message'] = "Maximum available stock for " . htmlspecialchars($item['product_name']) . " has been reached.";
                     }
                 } elseif ($action === 'decrease') {
-                    $item['quantity'] -= 1; 
+                    $item['quantity'] -= 1;
                     if ($item['quantity'] <= 0) {
                         $item = null;
                     }
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             }
         }
-        
+
         // Remove null entries and re-index
         $_SESSION['cart'] = array_filter($_SESSION['cart']);
         $_SESSION['cart'] = array_values($_SESSION['cart']);

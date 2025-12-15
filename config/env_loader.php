@@ -1,5 +1,4 @@
 <?php
-// config/env_loader.php
 
 function loadEnv($path)
 {

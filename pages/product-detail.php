@@ -14,7 +14,7 @@ if (!isset($_GET['product_id']) || empty($_GET['product_id'])) {
 
 $product_id = intval($_GET['product_id']);
 
-// FIX 1: Ensure p.quantity is selected here (Critical for stock display)
+//  Ensure p.quantity is selected here (for stock display)
 $query = "SELECT p.*, p.quantity, u.name AS seller_name, u.user_id AS seller_id FROM products p 
           JOIN users u ON p.seller_id = u.user_id 
           WHERE p.product_id = ?";
@@ -40,7 +40,7 @@ $reviews_stmt->bind_param('i', $product_id);
 $reviews_stmt->execute();
 $reviews = $reviews_stmt->get_result();
 
-// NEW LOGIC: Define quantity variables here
+// Define quantity variables
 $quantity_left = (int) $product['quantity'];
 ?>
 

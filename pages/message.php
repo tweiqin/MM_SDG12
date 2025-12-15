@@ -46,7 +46,7 @@ $results = $stmt->get_result();
 
 
 <?php
-// Include appropriate header
+// Include chat info header
 if ($role === 'buyer') {
     include('../includes/buyerheader.php');
 } else {

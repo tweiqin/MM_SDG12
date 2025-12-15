@@ -82,9 +82,9 @@ $limit = 100;
 $sellers_for_map = [];
 $products_list = [];
 
-// =========================================================================================
-// PHP LOGIC: GEO-SEARCH (Priority)
-// =========================================================================================
+// ======================
+// PHP LOGIC: GEO-SEARCH
+// ======================
 if ($user_lat && $user_lng) {
     // GEO-SEARCH LOGIC
     $distance_sql = "( 6371 * acos( cos( radians(?) ) * cos( radians( u.latitude ) ) * cos( radians( u.longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( u.latitude ) ) ) )";
@@ -134,7 +134,7 @@ if ($user_lat && $user_lng) {
                         'lng' => (float) $product['longitude'],
                         'logo' => $product['logo'],
                         'distance' => number_format($product['distance'], 2),
-                        'seller_id' => $product['seller_id'], // Ensure this is available for JS link
+                        'seller_id' => $product['seller_id'],
                         'product_id' => $product['product_id']
                     ];
                 }
@@ -147,9 +147,9 @@ if ($user_lat && $user_lng) {
     $searchResults = (object) ['num_rows' => count($products_list), 'products' => $products_list];
 
 }
-// =========================================================================================
+// ==================================================
 // PHP LOGIC: FALLBACK (Text Search or All Products)
-// =========================================================================================
+// ==================================================
 else {
     $search_condition = "";
     $bind_types = "";
@@ -183,7 +183,7 @@ else {
 
     $searchResults = (object) ['num_rows' => count($products_list), 'products' => $products_list];
 }
-// =========================================================================================
+
 ?>
 
 <div class="container my-5">
@@ -228,7 +228,7 @@ else {
     <?php if ($searchResults->num_rows > 0): ?>
         <div class="row justify-content-center">
             <?php
-            // Loop directly over the 'products' array property (Now guaranteed to exist)
+            // Loop directly over the 'products' array property
             foreach ($searchResults->products as $product):
                 renderProductCard($product);
             endforeach;
@@ -329,7 +329,6 @@ else {
             });
         });
     }
-
 
     // Function to handle location found by browser
     function handleLocationFound(position) {

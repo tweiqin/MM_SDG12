@@ -1,18 +1,15 @@
 <?php
-// api/chat-handler.php - Final Cleaned Version
 
 require_once '../config/api-keys.php';
 
 header('Content-Type: application/json');
 
-// --- REMOVED: The complex conditional check that caused the Status 500 crash ---
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
     $user_message = trim($_POST['message']);
 
-    // --- 1. Payload Construction ---
+    // 1. Payload Construction
     $data = [
-        "model" => "google/gemma-3-27b-it:free", 
+        "model" => "google/gemma-3-27b-it:free",
         "messages" => [
             [
                 "role" => "system",
@@ -50,14 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
     curl_close($ch);
 
     // ----------------------------------------------------
-    // CHECK: Network/API Error Check (Now simplified and secure)
+    // CHECK: Network/API Error Check
     // ----------------------------------------------------
 
-    if ($curl_error || $curl_errno !== 0) { 
+    if ($curl_error || $curl_errno !== 0) {
         // Handles failure to reach the server (DNS/SSL/Network)
-        error_log("CURL NETWORK FAILURE: Code {$curl_errno} - Message: {$curl_error}"); 
+        error_log("CURL NETWORK FAILURE: Code {$curl_errno} - Message: {$curl_error}");
         http_response_code(500);
-        
+
         $reply = "CURL FAILED. Code {$curl_errno}: {$curl_error}. Check API Key/Network.";
         echo json_encode(['reply' => $reply]);
         exit;
@@ -65,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
 
     if ($http_code !== 200) {
         // Handles successful connection but API rejection (e.g., Status 401/400)
-        
+
         $decoded_response = json_decode($response, true);
         $error_details = $decoded_response['error']['message'] ?? "Unknown API Error.";
 
@@ -75,11 +72,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
         exit;
     }
 
-    // ----------------------------------------------------
-    
     // 5. Process and return response
     $decoded_response = json_decode($response, true);
-    
+
     $reply_text = $decoded_response['choices'][0]['message']['content'] ?? "Sorry, I couldn't find a response.";
 
     // 6. Return answer as JSON

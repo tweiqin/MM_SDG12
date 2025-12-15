@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id']) && $_POST
     $buyer_id = $_SESSION['user_id'];
     $new_status = 'collected';
 
-    // SECURE: Only update if the current status is 'ready for pick-up' AND the user is the buyer
+    // Only update if the current status is 'ready for pick-up' AND the user is the buyer
     $update_query = "UPDATE orders SET order_status = ? 
                      WHERE order_id = ? AND buyer_id = ? AND order_status = 'ready for pick-up'";
 

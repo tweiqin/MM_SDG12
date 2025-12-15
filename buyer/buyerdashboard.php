@@ -50,12 +50,12 @@ $stmt_ready->close();
     <h2 class="mb-4 text-center">Welcome, <?= htmlspecialchars($user['name']); ?>!</h2>
 
     <div class="row g-4">
-        
+
         <div class="col-md-4">
-            <div class="card text-white shadow-sm" 
-                 style="background-image: radial-gradient(circle at 0% 0%, #7ed957, #00a650);">
+            <div class="card text-white shadow-sm"
+                style="background-image: radial-gradient(circle at 0% 0%, #7ed957, #00a650);">
                 <div class="card-body">
-                    <h5 class="card-title">Meals Saved 
+                    <h5 class="card-title">Meals Saved
                         <i class="fas fa-utensils fa-2x float-end text-white-50"></i>
                     </h5>
                     <h2 class="card-text"><?= $total_meals; ?></h2>
@@ -65,9 +65,9 @@ $stmt_ready->close();
 
         <div class="col-md-4">
             <div class="card text-white shadow-sm"
-                 style="background-image: radial-gradient(circle at 0% 0%, #5de0e6, #274081);">
+                style="background-image: radial-gradient(circle at 0% 0%, #5de0e6, #274081);">
                 <div class="card-body">
-                    <h5 class="card-title">Money Saved 
+                    <h5 class="card-title">Money Saved
                         <i class="fas fa-wallet fa-2x float-end text-white-50"></i>
                     </h5>
                     <h2 class="card-text">RM<?= number_format($total_saved, 2); ?></h2>
@@ -77,9 +77,9 @@ $stmt_ready->close();
 
         <div class="col-md-4">
             <div class="card text-dark shadow-sm"
-                 style="background-image: radial-gradient(circle at 0% 0%, #ffde59, #ff914d);">
+                style="background-image: radial-gradient(circle at 0% 0%, #ffde59, #ff914d);">
                 <div class="card-body">
-                    <h5 class="card-title">Ready for Pick-up 
+                    <h5 class="card-title">Ready for Pick-up
                         <i class="fas fa-clock fa-2x float-end text-white-50"></i>
                     </h5>
                     <h2 class="card-text"><?= $ready_orders; ?></h2>
@@ -87,7 +87,7 @@ $stmt_ready->close();
             </div>
         </div>
     </div>
-    
+
     <div class="mt-5">
         <h4 class="mb-3">Recent Orders</h4>
         <div class="table-responsive">

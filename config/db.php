@@ -7,11 +7,11 @@ if (session_status() == PHP_SESSION_NONE) {
 $servername = "localhost";
 $username = "root";
 
-// NOTE: This is often an EMPTY STRING "" for default XAMPP/WAMP.
-// Use YOUR actual MySQL password if you set one.
+// It is often an EMPTY STRING "" for default XAMPP/WAMP
+// Use actual MySQL password if set one
 $password = "";
 
-// THIS MUST MATCH the database you created in phpMyAdmin.
+// Match the database created in phpMyAdmin.
 $database = "mm_sdg12";
 
 // Establish the MySQLi Connection

@@ -29,7 +29,7 @@
     </div>
 </section>
 
-<!-- Featured Categories Section -->
+<!-- Featured Box Categories Section -->
 <section class="featured-categories py-5">
     <div class="container text-center">
         <h2 class="mb-4">Featured Box Categories</h2>
@@ -114,7 +114,7 @@ $query = "SELECT * FROM products WHERE product_status = 'Available' LIMIT $limit
 $result = $conn->query($query);
 ?>
 
-<!-- Featured Boxes Section -->
+<!-- Featured Mystery Boxes Section -->
 <section id="featured-products" class="featured-products py-5 bg-light">
     <div class="container text-center">
         <h2 class="mb-4">Featured Mystery Boxes</h2>

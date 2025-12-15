@@ -12,7 +12,7 @@ if (!isset($_GET['seller_id']) || !is_numeric($_GET['seller_id'])) {
 
 $seller_id = intval($_GET['seller_id']);
 
-// FIX 1: Fetch location coordinates (latitude and longitude)
+// Fetch location coordinates (latitude and longitude)
 $query = "SELECT name, email, phone, address, is_active, latitude, longitude FROM users WHERE user_id = ? AND role = 'seller'";
 $stmt = $conn->prepare($query);
 $stmt->bind_param('i', $seller_id);

@@ -11,7 +11,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['action'])) {
     $userId = intval($_GET['id']);
     $action = $_GET['action'];
 
-    // Determine new status: 0 for Deactivate/Block, 1 for Activate
+    // 0 for Deactivate/Block, 1 for Activate
     $new_status = ($action === 'deactivate') ? 0 : 1;
 
     $updateQuery = "UPDATE users SET is_active = ? WHERE user_id = ?";

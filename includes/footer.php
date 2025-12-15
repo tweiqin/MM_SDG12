@@ -15,8 +15,8 @@
                 <ul class="list-unstyled">
                     <li><a href="../pages/index.php" class="text-white text-decoration-none">Home</a></li>
                     <li><a href="../pages/faq.php" class="text-white text-decoration-none">FAQs</a></li>
-                    <li><a href="privacy.php" class="text-white text-decoration-none">Privacy Policy</a></li>
-                    <li><a href="contact.php" class="text-white text-decoration-none">Contact</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Privacy Policy</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Contact</a></li>
                 </ul>
             </div>
 
@@ -42,131 +42,6 @@
             <p class="mb-0">&copy; <?php echo date('Y'); ?> Makan Mystery. All rights reserved.</p>
         </div>
 </footer>
-
-<!-- <div id="chatbot-icon-container" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
-    <button class="btn btn-lg btn-primary shadow-lg" id="open-chat-btn" data-bs-toggle="modal"
-        data-bs-target="#chatbotModal"
-        style="border-radius: 50%; width: 60px; height: 60px; background-color: #00a650; border: none;">
-        <i class="fas fa-robot fa-lg text-white"></i>
-    </button>
-</div>
-<div class="modal fade" id="chatbotModal" tabindex="-1" aria-labelledby="chatbotModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white" style="background-color: #274081 !important;">
-                <h5 class="modal-title" id="chatbotModalLabel">MakanMystery Support</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="chat-messages" style="height: 300px; overflow-y: auto;">
-                <div class="alert alert-info p-2 mb-2">Hello! I'm your AI assistant. How can I help you save
-                    food
-                    today?</div>
-            </div>
-            <div class="modal-footer">
-                <input type="text" id="chat-input" class="form-control" placeholder="Type your question..." autofocus>
-                <button type="button" class="btn btn-primary" id="send-chat-btn"
-                    style="background-color: #00a650; border-color: #00a650;">Send</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const chatMessages = document.getElementById('chat-messages');
-        const chatInput = document.getElementById('chat-input');
-        const sendChatBtn = document.getElementById('send-chat-btn');
-        const chatModal = document.getElementById('chatbotModal');
-
-        // Path to your backend processor
-        const chatApiUrl = '../api/chat-handler.php';
-
-        // Function to append message to the chat window
-        function appendMessage(sender, text, isError = false) {
-            const msgDiv = document.createElement('div');
-
-            let baseClass = 'p-2 mb-2 rounded shadow-sm small ';
-
-            if (sender === 'user') {
-                // FIX: Use a custom light blue-gray background for the sent message, align right
-                msgDiv.className = baseClass + ' text-end text-dark';
-                msgDiv.style.backgroundColor = '#E9F2F9'; // Very light blue/gray
-            } else {
-                // Bot messages (Green theme)
-                msgDiv.className = baseClass + ' text-start text-white';
-                msgDiv.style.backgroundColor = isError ? '#dc3545' : '#00a650'; // Red for error, Green for reply
-            }
-
-            msgDiv.innerHTML = `<strong>${sender === 'user' ? 'You' : 'MakanMystery Bot'}</strong>: ${text}`;
-            chatMessages.appendChild(msgDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Function to send message to the API
-        async function sendMessage() {
-            const message = chatInput.value.trim();
-            if (!message) return;
-
-            appendMessage('user', message);
-            chatInput.value = '';
-            sendChatBtn.disabled = true;
-
-            // Show typing indicator
-            const loadingDiv = document.createElement('div');
-            loadingDiv.id = 'loading-indicator';
-            loadingDiv.className = 'p-2 mb-2 rounded shadow-sm small text-success text-start';
-            loadingDiv.innerHTML = '<strong>MakanMystery Bot</strong>: Typing...';
-            chatMessages.appendChild(loadingDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            try {
-                const response = await fetch(chatApiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: `message=${encodeURIComponent(message)}`
-                });
-
-                // Remove loading indicator
-                loadingDiv.remove();
-
-                if (!response.ok) {
-                    appendMessage('bot', 'Sorry, I lost connection to the server.', true);
-                    return;
-                }
-
-                const data = await response.json();
-
-                if (data.reply) {
-                    appendMessage('bot', data.reply);
-                } else {
-                    appendMessage('bot', data.error || 'System error. Please check the API key.', true);
-                }
-
-            } catch (error) {
-                loadingDiv.remove();
-                appendMessage('bot', 'Network error occurred.', true);
-            } finally {
-                sendChatBtn.disabled = false;
-            }
-        }
-
-        // Event listeners
-        sendChatBtn.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        // Focus input when modal opens
-        chatModal.addEventListener('shown.bs.modal', function () {
-            chatInput.focus();
-        });
-    });
-</script> -->
 
 <div id="chatbot-icon-container" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
     <button class="btn btn-lg btn-primary shadow-lg" id="open-chat-btn" data-bs-toggle="modal"
@@ -198,17 +73,14 @@
 </div>
 
 <style>
-    /* Position the chatbot modal at bottom-right corner */
     .chatbot-bottom-right {
         position: fixed !important;
         bottom: 20px;
         right: 30px;
         margin: 0;
         transform: none !important;
-        /* Disable Bootstrap centering transform */
     }
 
-    /* Also ensure modal covers only its content */
     #chatbotModal .modal-dialog {
         pointer-events: auto;
     }
@@ -221,7 +93,7 @@
         const sendChatBtn = document.getElementById('send-chat-btn');
         const chatModal = document.getElementById('chatbotModal');
 
-        // Path to your backend processor
+        // Path to backend processor
         const chatApiUrl = '../api/chat-handler.php';
 
         // Function to append message to the chat window
@@ -231,13 +103,11 @@
             let baseClass = 'p-2 mb-2 rounded shadow-sm small ';
 
             if (sender === 'user') {
-                // FIX: Use a custom light blue-gray background for the sent message, align right
                 msgDiv.className = baseClass + ' text-end text-dark';
-                msgDiv.style.backgroundColor = '#E9F2F9'; // Very light blue/gray
+                msgDiv.style.backgroundColor = '#E9F2F9';
             } else {
-                // Bot messages (Green theme)
                 msgDiv.className = baseClass + ' text-start text-white';
-                msgDiv.style.backgroundColor = isError ? '#dc3545' : '#00a650'; // Red for error, Green for reply
+                msgDiv.style.backgroundColor = isError ? '#dc3545' : '#00a650';
             }
 
             msgDiv.innerHTML = `<strong>${sender === 'user' ? 'You' : 'MakanMystery Bot'}</strong>: ${text}`;
@@ -271,7 +141,6 @@
                     body: `message=${encodeURIComponent(message)}`
                 });
 
-                // Remove loading indicator
                 loadingDiv.remove();
 
                 if (!response.ok) {

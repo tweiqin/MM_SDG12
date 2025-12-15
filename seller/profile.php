@@ -20,11 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $phone = $_POST['phone'];
         $address = $_POST['address'];
 
-        // NEW FIX: Capture coordinates from visible text inputs
+        // Capture coordinates from visible text inputs
         $latitude = $_POST['latitude'] ?? null;
         $longitude = $_POST['longitude'] ?? null;
 
-        // --- Handle Logo Upload ---
+        // Handle Logo Upload
         $logo_sql_part = "";
         $bind_types = "ssssidd";
 
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        // --- Secure Update Query ---
+        // Secure Update Query
         $update_query = "UPDATE users SET name = ?, email = ?, phone = ?, address = ?, latitude = ?, longitude = ? {$logo_sql_part} WHERE user_id = ?";
         $update_stmt = $conn->prepare($update_query);
 
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // --- Handle Password Change ---
+    // Handle Password Change
     if (isset($_POST['change_password'])) {
         $current_password = $_POST['current_password'] ?? '';
         $new_password = $_POST['new_password'] ?? '';
@@ -249,7 +249,7 @@ $stmt->close();
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Existing geolocation code...
+        // Existing geolocation code
         const latInput = document.getElementById('latitude');
         const lngInput = document.getElementById('longitude');
         const setLocationBtn = document.getElementById('set-location-btn');
@@ -398,11 +398,9 @@ $stmt->close();
                 if (/[0-9]/.test(password)) strength++;
                 if (/[!@#$%^&*()\-_=+{};:,<.>]/.test(password)) strength++;
 
-                // Optional: Update a strength indicator
+                // Update a strength indicator
                 const strengthText = ['Very Weak', 'Weak', 'Fair', 'Strong', 'Very Strong'][strength] || 'Very Weak';
                 const strengthColors = ['danger', 'danger', 'warning', 'success', 'success'];
-
-                // You could add a strength bar here if needed
             });
         }
 
@@ -420,7 +418,7 @@ $stmt->close();
         // Initialize
         updateSubmitButton();
 
-        // Optional: Toggle password visibility
+        // Toggle password visibility
         function addPasswordToggle() {
             const toggleIcon = '<i class="fas fa-eye"></i>';
             const toggleIconSlash = '<i class="fas fa-eye-slash"></i>';

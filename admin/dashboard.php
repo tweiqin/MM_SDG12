@@ -155,8 +155,8 @@ if ($result_pending) {
                 <!-- Action Cards - Clickable -->
                 <div class="col-md-4 mb-4">
                     <a href="manage-users.php" class="text-decoration-none">
-                        <div class="card action-card h-100 border-primary border-2" 
-                             style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+                        <div class="card action-card h-100 border-primary border-2"
+                            style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
                             <div class="card-body text-center p-4">
                                 <div class="mb-3">
                                     <i class="fas fa-users fa-3x text-primary"></i>
@@ -176,7 +176,7 @@ if ($result_pending) {
                 <div class="col-md-4 mb-4">
                     <a href="manage-products.php" class="text-decoration-none">
                         <div class="card action-card h-100 border-success border-2"
-                             style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
+                            style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
                             <div class="card-body text-center p-4">
                                 <div class="mb-3">
                                     <i class="fas fa-box fa-3x text-success"></i>
@@ -196,7 +196,7 @@ if ($result_pending) {
                 <div class="col-md-4 mb-4">
                     <a href="reports.php" class="text-decoration-none">
                         <div class="card action-card h-100 border-warning border-2"
-                             style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);">
+                            style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);">
                             <div class="card-body text-center p-4">
                                 <div class="mb-3">
                                     <i class="fas fa-chart-line fa-3x text-warning"></i>
@@ -267,51 +267,46 @@ if ($result_pending) {
 </div>
 
 <style>
-/* Custom styles for better differentiation */
-.action-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
+    .action-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
 
-.action-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-}
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
 
-.action-card:hover .action-indicator {
-    transform: scale(1.05);
-}
+    .action-card:hover .action-indicator {
+        transform: scale(1.05);
+    }
 
-.hover-shadow {
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
+    .hover-shadow {
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
 
-.hover-shadow:hover {
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
-    transform: translateY(-2px);
-}
+    .hover-shadow:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+        transform: translateY(-2px);
+    }
 
-/* Section headers */
-.card-header {
-    background: linear-gradient(to right, #f8f9fa, #ffffff);
-    padding: 1.5rem 1.5rem 0.5rem 1.5rem !important;
-}
+    .card-header {
+        background: linear-gradient(to right, #f8f9fa, #ffffff);
+        padding: 1.5rem 1.5rem 0.5rem 1.5rem !important;
+    }
 
-/* Clear visual separation */
-.card {
-    border-radius: 10px !important;
-}
+    .card {
+        border-radius: 10px !important;
+    }
 
-/* Stats cards - subtle design */
-.card[style*="background: #f8f9fa;"] {
-    border: 1px solid #e9ecef !important;
-}
+    .card[style*="background: #f8f9fa;"] {
+        border: 1px solid #e9ecef !important;
+    }
 
-/* Action cards - more prominent */
-.action-card {
-    border-width: 2px !important;
-}
+    .action-card {
+        border-width: 2px !important;
+    }
 </style>
 
 <?php include('../includes/end.php'); ?>

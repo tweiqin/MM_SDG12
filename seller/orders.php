@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'seller') {
 
 $user_id = $_SESSION['user_id'];
 
-// FIX 1: MODIFIED QUERY to fetch full_name from the orders table
+// Fetch full_name from the orders table
 $seller_orders_query = "
     SELECT 
         o.order_id, o.order_status, o.created_at, o.full_name, 

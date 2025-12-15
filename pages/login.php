@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($email) || empty($password)) {
         $message = "Both fields are required.";
     } else {
-        // FIX 1: Fetch the is_active status
+        // Fetch the is_active status
         $query = "SELECT user_id, role, password, is_active FROM users WHERE email = ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("s", $email);
@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if (password_verify($password, $user['password'])) {
 
-                // FIX 2: Check if the account is active/blocked
+                // Check if the account is active/blocked
                 if ($user['is_active'] == 0) {
                     $message = "Your account has been blocked. Please contact customer support.";
                 } elseif ($user['is_active'] == 2) {
