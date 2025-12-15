@@ -32,7 +32,7 @@
 <!-- Featured Categories Section -->
 <section class="featured-categories py-5">
     <div class="container text-center">
-        <h2 class="mb-4">Featured Categories</h2>
+        <h2 class="mb-4">Featured Box Categories</h2>
         <div class="row">
             <div class="col-md-4">
                 <div class="category-card">
