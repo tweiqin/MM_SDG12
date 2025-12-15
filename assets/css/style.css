@@ -1,0 +1,220 @@
+/* General Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+/* Logo Styling */
+.logo {
+    width: 150px;
+    height: 70px;
+    margin-right: 10px;
+}
+
+/* Navbar Styling */
+.navbar {
+    padding: 10px 15px;
+}
+
+.navbar .nav-link {
+    color: #fff;
+    transition: color 0.3s ease;
+}
+
+.navbar .nav-link:hover {
+    color: #ffcc00;
+    text-decoration: underline;
+}
+
+
+/* Login Button */
+.btn-warning {
+    background-color: #ffcc00;
+    border: none;
+    padding: 5px 15px;
+    font-weight: bold;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-warning:hover {
+    background-color: #e6b800;
+}
+/* Hero Banner Styling */
+#hero-banner .carousel-item {
+    height: 80vh;
+    min-height: 400px;
+    background-size: cover;
+    background-position: center;
+}
+
+.carousel-caption {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.carousel-caption h5 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ffc107;
+}
+
+.carousel-caption p {
+    font-size: 1.25rem;
+}
+
+.carousel-caption .btn {
+    background-color: #ffc107;
+    color: #0a3d20;
+    font-weight: bold;
+}
+
+.carousel-caption .btn:hover {
+    background-color: #d49e00;
+}
+
+/* Featured Categories Section */
+.featured-categories .category-card {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 20px;
+}
+
+.featured-categories .category-card img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.featured-categories .category-card h5 {
+    margin-top: 20px;
+    font-size: 1.25rem;
+}
+
+.featured-categories .category-card .btn {
+    margin-top: 10px;
+}
+
+/* Featured Products Section */
+.featured-products .product-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 100%;
+    height: 400px!important ;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+.featured-products .product-card img {
+    max-height: 100% !important; /* Image ki maximum height */
+    max-width: 100%;/* Image ki maximum width */
+    object-fit: cover; 
+}
+
+
+.featured-products .product-card .card-body {
+    text-align: center;
+}
+
+.featured-products .product-card .card-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.featured-products .product-card .btn-warning {
+    background-color: #ffcc00;
+    border: none;
+    margin-top: 10px;
+}
+
+.featured-products .product-card .btn-warning:hover {
+    background-color: #ffcc00;
+}
+
+form .form-control {
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+     margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-warning {
+    background-color: #ffcc00;
+    border-color: #ffcc00;
+}
+
+.btn-warning:hover {
+    background-color: #f29d09;
+    border-color: #f29d09;
+}
+
+.card-body {
+    margin-bottom: 30px; 
+}
+
+footer {
+    padding-top: 30px; 
+    margin-top: 20px;  
+}
+
+/*.container {
+    padding-bottom: 40px;  Give a bottom padding if needed 
+}
+*/       
+ .chat-link:hover {
+            background-color: #f8f9fa;
+            transition: 0.3s;
+        }
+        
+.message-box {
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+.chat-box {
+            max-width: 800px;
+            margin: 60px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+        }
+        
+footer {
+    padding-top: 40px; 
+}
+
+
+footer a i {
+    font-size: 24px; 
+    transition: color 0.3s ease; 
+  }
+  
+  footer a:hover i {
+    color: #FFD700; 
+  }
+  
+  footer h5 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  footer ul li {
+    margin-bottom: 8px;
+  }
