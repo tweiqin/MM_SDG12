@@ -151,13 +151,18 @@ $result = $conn->query($query);
                                 <a href="product-detail.php?product_id=<?= $product['product_id']; ?>"
                                     class="btn btn-outline-secondary" style="border-radius: 20px;">View Details</a>
 
-                                <form action="add-to-cart.php" method="POST" class="mt-2">
-                                    <input type="hidden" name="product_image" value="<?= $product['image']; ?>">
-                                    <input type="hidden" name="product_id" value="<?= $product['product_id']; ?>">
-                                    <input type="hidden" name="product_name" value="<?= htmlspecialchars($product['name']); ?>">
-                                    <input type="hidden" name="product_price" value="<?= $product['price']; ?>">
-                                    <button type="submit" class="btn btn-success">Add to Cart</button>
-                                </form>
+                                <?php if ($product['quantity'] > 0): ?>
+                                    <form action="add-to-cart.php" method="POST" class="mt-2">
+                                        <input type="hidden" name="product_image" value="<?= $product['image']; ?>">
+                                        <input type="hidden" name="product_id" value="<?= $product['product_id']; ?>">
+                                        <input type="hidden" name="product_name" value="<?= htmlspecialchars($product['name']); ?>">
+                                        <input type="hidden" name="product_price" value="<?= $product['price']; ?>">
+                                        <button type="submit" class="btn btn-success">Add to Cart</button>
+                                    </form>
+                                <?php else: ?>
+                                    <br>
+                                    <button class="btn btn-success mt-2" disabled>Out of Stock</button>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

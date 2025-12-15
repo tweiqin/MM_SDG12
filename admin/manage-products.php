@@ -22,6 +22,7 @@ $result = $conn->query($query);
                     <th>Name</th>
                     <th>Seller</th>
                     <th>Price</th>
+                    <th>Quantity</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -51,6 +52,7 @@ $result = $conn->query($query);
                                 </a>
                             </td>
                             <td>RM <?= number_format($product['price'], 2); ?></td>
+                            <td><?= $product['quantity']; ?></td>
 
                             <td style="color: <?= $status_color; ?>; font-weight: bold;">
                                 <?= $status; ?>
