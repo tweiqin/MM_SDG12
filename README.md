@@ -1,6 +1,5 @@
 # MM_SDG12
 
-Tools:
 VS Code
 PHP
 MySQL
@@ -9,3 +8,6 @@ HTML
 CSS
 JavaScript
 XAMPP
+AWS
+Terraform
+Docker
