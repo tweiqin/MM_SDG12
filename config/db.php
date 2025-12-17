@@ -4,14 +4,9 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-$servername = "localhost";
-$username = "root";
-
-// It is often an EMPTY STRING "" for default XAMPP/WAMP
-// Use actual MySQL password if set one
-$password = "";
-
-// Match the database created in phpMyAdmin.
+$servername = "makanmystery-db.c16c2yeq25d0.ap-southeast-1.rds.amazonaws.com";
+$username = "admin";
+$password = "030219#Mm";
 $database = "mm_sdg12";
 
 // Establish the MySQLi Connection

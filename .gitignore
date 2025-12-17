@@ -1,3 +1,7 @@
 .env
-*.log
 *.sql
+*.tfvars
+*.pem
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
