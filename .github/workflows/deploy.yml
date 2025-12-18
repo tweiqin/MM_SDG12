@@ -1,0 +1,141 @@
+name: Full CI/CD Deployment
+
+on:
+  push:
+    branches:
+      - main # Trigger this workflow only on pushes to the main branch
+  workflow_dispatch: # Allows manual triggering of the workflow from GitHub UI
+
+permissions:
+  id-token: write # Required for requesting the JWT for AWS OIDC authentication
+  contents: read  # Required for actions/checkout to read the code
+
+jobs:
+  # --- JOB 1: BUILD & PUSH DOCKER IMAGE ---
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        # Logs in to Docker Hub using secrets explicitly set in GitHub Repo Settings
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push
+        # Builds the Dockerfile from the root and pushes it to Docker Hub
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          # Tags the image with the URI provided in secrets (e.g., user/repo:latest)
+          tags: ${{ secrets.DOCKER_IMAGE_URI }}
+
+  # --- JOB 2: DEPLOY INFRASTRUCTURE (TERRAFORM) ---
+  deploy:
+    name: Terraform Apply
+    needs: build-and-push # Waits for the Docker image to be ready
+    runs-on: ubuntu-latest
+    environment: production
+    
+    defaults:
+      run:
+        working-directory: ./terraform # Runs all commands inside the terraform folder
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        # Authenticates with AWS using OpenID Connect (OIDC) via the Role ARN
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        # Initializes Terraform, downloading provider plugins and modules
+        run: terraform init
+
+      - name: Terraform Plan
+        # Generates an execution plan showing what will change in AWS
+        run: terraform plan -input=false
+        env:
+          TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_db_name: ${{ secrets.DB_NAME }}
+          TF_VAR_docker_image_uri: ${{ secrets.DOCKER_IMAGE_URI }}
+
+      - name: Terraform Apply
+        # Applies the changes to AWS. Only runs on main branch.
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve -input=false
+        env:
+          TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_db_name: ${{ secrets.DB_NAME }}
+          TF_VAR_docker_image_uri: ${{ secrets.DOCKER_IMAGE_URI }}
+
+  # --- JOB 3: DATABASE MIGRATION (SEEDING) ---
+  deploy-migration:
+    name: Database Seed via SSM
+    needs: deploy # Waits for infrastructure to be up
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Run Schema Seed
+        shell: bash
+        run: |
+          # The database is in a Private Subnet, so GitHub Actions cannot reach it directly.
+          # We use AWS Systems Manager (SSM) to tell the EC2 instance (which IS in the network)
+          # to run the migration command for us.
+
+          # 1. Find the Auto Scaling Group Name created by Terraform
+          ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[?contains(AutoScalingGroupName, 'app_asg')].AutoScalingGroupName" --output text | head -n 1)
+          echo "Found ASG: $ASG_NAME"
+
+          # 2. Find a healthy Instance ID within that group
+          INSTANCE_ID=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$ASG_NAME" --query "AutoScalingGroups[0].Instances[?LifecycleState=='InService'].InstanceId | [0]" --output text)
+          echo "Target Instance: $INSTANCE_ID"
+
+          if [ "$INSTANCE_ID" == "None" ] || [ -z "$INSTANCE_ID" ]; then
+             echo "Error: No instances found to run migration on."
+             exit 1
+          fi
+
+          # 3. Send SSM Command to the Docker Container running on that Instance
+          # We exec into the running container and use 'mysql' client to import the SQL file.
+          # The environment variables ($DB_HOST, etc.) were already injected into the container by Terraform User Data.
+          
+          CMD="docker_id=\$(sudo docker ps -q | head -n 1) && [ ! -z \"\$docker_id\" ] && sudo docker exec \$docker_id sh -c 'if [ -f /var/www/html/mm_sdg12.sql ]; then mysql -h \$DB_HOST -u \$DB_USER -p\$DB_PASS \$DB_NAME < /var/www/html/mm_sdg12.sql; else echo \"SQL file not found\"; fi'"
+          
+          # Send the command and capture the Command ID
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters "{\"commands\":[\"$CMD\"]}" \
+            --query "Command.CommandId" \
+            --output text)
+            
+          echo "Command Sent: $COMMAND_ID"
+          
+          # Wait for the command to finish
+          aws ssm wait command-executed --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID"
+          
+          # Retrieve and display the output
+          aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "StandardOutputContent" --output text
+
