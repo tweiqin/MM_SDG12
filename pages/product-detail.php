@@ -31,10 +31,28 @@ if (!$product) {
     exit;
 }
 
-// Fetch product reviews (Query remains the same)
+// Fetch average rating and total reviews
+$rating_query = "SELECT AVG(rating) as avg_rating, COUNT(*) as total_reviews FROM reviews WHERE product_id = ?";
+$rating_stmt = $conn->prepare($rating_query);
+$rating_stmt->bind_param('i', $product_id);
+$rating_stmt->execute();
+$rating_data = $rating_stmt->get_result()->fetch_assoc();
+$avg_rating = round($rating_data['avg_rating'] ?? 0, 1);
+$total_reviews = $rating_data['total_reviews'];
+
+// Handle Sorting
+$sort_option = $_GET['sort'] ?? 'newest';
+$order_by = "r.created_at DESC"; // Default
+
+if ($sort_option == 'highest') {
+    $order_by = "r.rating DESC, r.created_at DESC";
+} elseif ($sort_option == 'lowest') {
+    $order_by = "r.rating ASC, r.created_at DESC";
+}
+
 $reviews_query = "SELECT r.*, u.name FROM reviews r 
                   JOIN users u ON r.user_id = u.user_id 
-                  WHERE r.product_id = ? ORDER BY r.created_at DESC";
+                  WHERE r.product_id = ? ORDER BY $order_by";
 $reviews_stmt = $conn->prepare($reviews_query);
 $reviews_stmt->bind_param('i', $product_id);
 $reviews_stmt->execute();
@@ -117,16 +135,56 @@ $quantity_left = (int) $product['quantity'];
 
     <hr>
 
-    <div class="reviews-section mt-5">
-        <h3>Customer Reviews</h3>
+    <div id="reviews" class="reviews-section mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3>Customer Reviews (<?= $total_reviews; ?>)</h3>
+                <div class="text-warning">
+                    <?php
+                    for ($i = 1; $i <= 5; $i++) {
+                        if ($i <= round($avg_rating)) {
+                            echo '<i class="fas fa-star"></i>';
+                        } elseif ($i - 0.5 == $avg_rating) {
+                            echo '<i class="fas fa-star-half-alt"></i>';
+                        } else {
+                            echo '<i class="far fa-star"></i>';
+                        }
+                    }
+                    ?>
+                    <span class="text-dark ms-2" style="font-size: 0.9em; font-weight: bold;"><?= $avg_rating; ?> out of
+                        5</span>
+                </div>
+            </div>
+
+            <!-- Sorting Form -->
+            <div class="d-flex align-items-center">
+                <label for="sort" class="me-2 text-nowrap">Sort by:</label>
+                <select id="sort" class="form-select form-select-sm"
+                    onchange="window.location.href='?product_id=<?= $product_id; ?>&sort=' + this.value + '#reviews'">
+                    <option value="newest" <?= $sort_option == 'newest' ? 'selected' : ''; ?>>Newest</option>
+                    <option value="highest" <?= $sort_option == 'highest' ? 'selected' : ''; ?>>Highest Rating</option>
+                    <option value="lowest" <?= $sort_option == 'lowest' ? 'selected' : ''; ?>>Lowest Rating</option>
+                </select>
+            </div>
+        </div>
+
         <?php if ($reviews->num_rows > 0): ?>
             <ul class="list-group">
                 <?php while ($review = $reviews->fetch_assoc()): ?>
                     <li class="list-group-item">
-                        <strong><?= htmlspecialchars($review['name']); ?></strong>
-                        <span class="badge bg-warning text-dark">Rating: <?= $review['rating']; ?>/5</span>
-                        <p><?= nl2br(htmlspecialchars($review['review_text'])); ?></p>
-                        <small class="text-muted">Reviewed on <?= date('F j, Y', strtotime($review['created_at'])); ?></small>
+                        <div class="d-flex justify-content-between">
+                            <strong><?= htmlspecialchars($review['name']); ?></strong>
+                            <small class="text-muted"><?= date('F j, Y', strtotime($review['created_at'])); ?></small>
+                        </div>
+                        <div class="text-warning mb-2">
+                            <?php
+                            $user_rating = $review['rating'];
+                            for ($i = 1; $i <= 5; $i++) {
+                                echo ($i <= $user_rating) ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
+                            }
+                            ?>
+                        </div>
+                        <p class="mb-1"><?= nl2br(htmlspecialchars($review['review_text'])); ?></p>
                     </li>
                 <?php endwhile; ?>
             </ul>
