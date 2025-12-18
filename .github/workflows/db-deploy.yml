@@ -1,0 +1,61 @@
+name: Database Deployment (Manual Seed)
+
+on:
+  workflow_dispatch: # Allows manual triggering from GitHub UI
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  db-seed:
+    name: Run Database Seeding
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Run Schema Seed via SSM
+        shell: bash
+        run: |
+          echo "Starting Manual Database Seeding..."
+          
+          # 1. Find the Auto Scaling Group
+          ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[?contains(AutoScalingGroupName, 'app_asg')].AutoScalingGroupName" --output text | head -n 1)
+          if [ -z "$ASG_NAME" ]; then
+            echo "Error: ASG not found. Is the infrastructure deployed?"
+            exit 1
+          fi
+          echo "Found ASG: $ASG_NAME"
+
+          # 2. Find a healthy Instance
+          INSTANCE_ID=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$ASG_NAME" --query "AutoScalingGroups[0].Instances[?LifecycleState=='InService'].InstanceId | [0]" --output text)
+          
+          if [ "$INSTANCE_ID" == "None" ] || [ -z "$INSTANCE_ID" ]; then
+             echo "Error: No healthy instances found to run migration on."
+             exit 1
+          fi
+          echo "Target Instance: $INSTANCE_ID"
+
+          # 3. Send SSM Command to Docker Container
+          # This assumes the container has not changed ID significantly or we just pick the first one.
+          CMD="docker_id=\$(sudo docker ps -q | head -n 1) && [ ! -z \"\$docker_id\" ] && sudo docker exec \$docker_id sh -c 'if [ -f /var/www/html/mm_sdg12.sql ]; then mysql -h \$DB_HOST -u \$DB_USER -p\$DB_PASS \$DB_NAME < /var/www/html/mm_sdg12.sql; else echo \"SQL file not found\"; fi'"
+          
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters "{\"commands\":[\"$CMD\"]}" \
+            --query "Command.CommandId" \
+            --output text)
+            
+          echo "Command Sent: $COMMAND_ID"
+          
+          # Wait for execution
+          aws ssm wait command-executed --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID"
+          
+          # Output result
+          echo ">>> Execution Output:"
+          aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "StandardOutputContent" --output text
