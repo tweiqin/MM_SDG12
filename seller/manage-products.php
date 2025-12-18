@@ -1,15 +1,12 @@
 <?php
-// Include necessary files for database connection and session handling
 include('../includes/sellerheader.php');
-include('../config/db.php');  // Update the path if necessary
+include('../config/db.php');
 
-// Check if the user is logged in and is a seller
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'seller') {
-    header("Location: ../login.php"); // Redirect to login page if not logged in
+    header("Location: ../login.php");
     exit();
 }
 
-// Fetch products added by the logged-in seller
 $seller_id = $_SESSION['user_id'];
 $sql = "SELECT *, product_status FROM products WHERE seller_id = ?";
 $stmt = $conn->prepare($sql);  // Prepare statement to prevent SQL injection

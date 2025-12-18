@@ -92,3 +92,4 @@ $stmt->close();
 </div>
 
 <?php include('../includes/footer.php'); ?>
+<?php include('../includes/end.php'); ?>

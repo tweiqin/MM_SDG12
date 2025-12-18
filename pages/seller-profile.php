@@ -65,21 +65,22 @@ $waze_url = "https://waze.com/ul?ll={$lat},{$lng}&navigate=yes";
                     </p>
 
                     <p><strong>Seller Name:</strong> <?= htmlspecialchars($seller['name']); ?></p>
-                    
+
                     <p>
-                        <strong>Email:</strong> 
+                        <strong>Email:</strong>
                         <span style="color: inherit; text-decoration: none;">
                             <?= htmlspecialchars($seller['email']); ?>
                         </span>
                     </p>
-                    
+
                     <p>
-                        <strong>Contact:</strong> 
-                        <a href="<?= $whatsapp_url; ?>" target="_blank" title="Chat on WhatsApp" style="color: #25D366; font-weight: bold; text-decoration: none;">
+                        <strong>Contact:</strong>
+                        <a href="<?= $whatsapp_url; ?>" target="_blank" title="Chat on WhatsApp"
+                            style="color: #25D366; font-weight: bold; text-decoration: none;">
                             <i class="fab fa-whatsapp"></i> <?= htmlspecialchars($seller['phone']); ?>
                         </a>
                     </p>
-                    
+
                     <p><strong>Address:</strong> <?= nl2br(htmlspecialchars($seller['address'])); ?></p>
 
                     <?php if ($lat && $lng): ?>
@@ -120,3 +121,4 @@ $waze_url = "https://waze.com/ul?ll={$lat},{$lng}&navigate=yes";
 </div>
 
 <?php include('../includes/footer.php'); ?>
+<?php include('../includes/end.php'); ?>

@@ -39,7 +39,8 @@ if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
             $refs = [];
             foreach ($arr as $key => $value)
                 $refs[$key] = &$arr[$key];
-            return $refs; };
+            return $refs;
+        };
         $bind_params = array_merge([$types], $product_ids);
         call_user_func_array([$stmt_stock, 'bind_param'], $ref_values($bind_params));
 
@@ -145,3 +146,4 @@ if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
 </div>
 
 <?php include('../includes/footer.php'); ?>
+<?php include('../includes/end.php'); ?>

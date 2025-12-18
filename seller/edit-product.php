@@ -3,18 +3,15 @@
 include('../includes/sellerheader.php');
 include('../config/db.php');
 
-// Check if the user is logged in and is a seller
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'seller') {
-    header("Location: ../login.php"); // Redirect to login page if not logged in
+    header("Location: ../login.php");
     exit();
 }
 
-// Check if the product ID is passed in the URL
 if (isset($_GET['id'])) {
     $product_id = $_GET['id'];
     $seller_id = $_SESSION['user_id'];
 
-    // Fetch product details from the database
     $sql = "SELECT * FROM products WHERE product_id = ? AND seller_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('ii', $product_id, $seller_id);
@@ -22,13 +19,12 @@ if (isset($_GET['id'])) {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        $product = $result->fetch_assoc(); // Fetch product details
+        $product = $result->fetch_assoc();
     } else {
         echo "Product not found!";
         exit();
     }
 
-    // Update product if the form is submitted
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $name = $_POST['name'];
         $original_price = $_POST['original_price'];
@@ -37,20 +33,38 @@ if (isset($_GET['id'])) {
         $quantity = $_POST['quantity'];
         $description = $_POST['description'];
 
-        // Validate inputs (basic validation)
+        // Validate inputs
         if (empty($name) || empty($price) || empty($category) || empty($description)) {
             $error = "All fields are required.";
         } else {
-            $sql = "UPDATE products SET name = ?, original_price = ?, price = ?, category = ?, quantity = ?, description = ?, product_status = 'Available' WHERE product_id = ? AND seller_id = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param('sddsisii', $name, $original_price, $price, $category, $quantity, $description, $product_id, $seller_id);
+            $image_field = "";
+            $param_types = "sddsisii";
+            $params = [$name, $original_price, $price, $category, $quantity, $description, $product_id, $seller_id];
 
-            if ($stmt->execute()) {
-                echo "<script>alert('Product updated and set to Available!'); window.location='manage-products.php';</script>";
-            } else {
-                $error = "Error updating product: " . $stmt->error;
+            if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+                $image = $_FILES['image']['name'];
+                $target = "../assets/images/" . basename($image);
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
+                    $image_field = ", image = ?";
+                    $param_types = "sddsissii";
+                    $params = [$name, $original_price, $price, $category, $quantity, $description, $image, $product_id, $seller_id];
+                } else {
+                    $error = "Error uploading image.";
+                }
             }
-            $stmt->close();
+
+            if (!isset($error)) {
+                $sql = "UPDATE products SET name = ?, original_price = ?, price = ?, category = ?, quantity = ?, description = ?" . $image_field . ", product_status = 'Available' WHERE product_id = ? AND seller_id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param($param_types, ...$params);
+
+                if ($stmt->execute()) {
+                    echo "<script>alert('Product updated and set to Available!'); window.location='manage-products.php';</script>";
+                } else {
+                    $error = "Error updating product: " . $stmt->error;
+                }
+                $stmt->close();
+            }
         }
     }
 } else {
@@ -66,11 +80,22 @@ if (isset($_GET['id'])) {
         <div class="alert alert-danger"><?php echo $error; ?></div>
     <?php endif; ?>
 
-    <form action="" method="POST">
+    <form action="" method="POST" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="name" class="form-label">Product Name</label>
             <input type="text" class="form-control" id="name" name="name"
                 value="<?php echo htmlspecialchars($product['name']); ?>" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Current Image</label><br>
+            <?php if (!empty($product['image'])): ?>
+                <img src="../assets/images/<?php echo htmlspecialchars($product['image']); ?>" alt="Product Image"
+                    width="150" class="img-thumbnail mb-2">
+            <?php else: ?>
+                <p>No image available.</p>
+            <?php endif; ?>
+            <input type="file" class="form-control" id="image" name="image">
         </div>
         <div class="mb-3">
             <label for="original_price" class="form-label">Original Price</label>

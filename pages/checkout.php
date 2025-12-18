@@ -103,18 +103,146 @@ if (isset($_SESSION['user_id'])) {
                 <div class="mb-3">
                     <label for="payment_method" class="form-label">Payment Method</label>
                     <select class="form-select" id="payment_method" name="payment_method" required>
-                        <option value="cash_on_delivery">Cash on Delivery (Pay at Pickup)</option>
+                        <option value="">-- Select Payment Method --</option>
+                        <option value="credit-card">Credit Card (Stripe)</option>
+                        <option value="grab_pay">Grab Pay</option>
+                        <option value="fpx_online_banking">FPX Online Banking</option>
                     </select>
+                </div>
+
+                <!-- FPX Bank Selection -->
+                <div id="fpx-bank-container" class="mb-3" style="display: none;">
+                    <label for="fpx_bank" class="form-label">Select Bank</label>
+                    <select class="form-select" id="fpx_bank" name="fpx_bank">
+                        <option value="">-- Choose Your Bank --</option>
+                        <option value="Maybank2u">Maybank2u</option>
+                        <option value="CIMB Clicks">CIMB Clicks</option>
+                        <option value="Public Bank">Public Bank</option>
+                        <option value="RHB Now">RHB Now</option>
+                        <option value="Hong Leong Connect">Hong Leong Connect</option>
+                        <option value="AmOnline">AmOnline</option>
+                    </select>
+                </div>
+
+                <!-- Stripe Elements Placeholder -->
+                <div id="stripe-card-container" class="mb-3 p-3 border rounded bg-light" style="display: none;">
+                    <label class="form-label">Card Details</label>
+                    <div id="card-element"></div>
+                    <div id="card-errors" role="alert" class="text-danger mt-2 small"></div>
                 </div>
             </div>
         </div>
 
         <div class="text-end mt-4">
             <a href="cart.php" class="btn btn-secondary">Back to Cart</a>
-            <button type="submit" class="btn btn-success">Place Order</button>
+            <button type="submit" id="submit-button" class="btn btn-success">Place Order</button>
         </div>
     </form>
 </div>
+
+<!-- Stripe JS SDK -->
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Create an instance of Stripe
+        // REPLACE with your actual Publishable Key from Stripe Dashboard
+        const stripe = Stripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
+        const elements = stripe.elements();
+
+        // Create the card Element
+        const card = elements.create('card', {
+            style: {
+                base: {
+                    color: '#32325d',
+                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                    fontSmoothing: 'antialiased',
+                    fontSize: '16px',
+                    '::placeholder': {
+                        color: '#aab7c4'
+                    }
+                },
+                invalid: {
+                    color: '#fa755a',
+                    iconColor: '#fa755a'
+                }
+            },
+            hidePostalCode: true // Hide postal code purely for simpler UI in this mock
+        });
+
+        // Add instance to the DOM
+        card.mount('#card-element');
+
+        // Handle Payment Method Change
+        const paymentSelect = document.getElementById('payment_method');
+        const stripeContainer = document.getElementById('stripe-card-container');
+        const form = document.querySelector('form');
+        const submitButton = document.getElementById('submit-button');
+
+        const fpxContainer = document.getElementById('fpx-bank-container');
+
+        paymentSelect.addEventListener('change', function () {
+            // Reset logic
+            stripeContainer.style.display = 'none';
+            fpxContainer.style.display = 'none';
+
+            if (this.value === 'credit-card') {
+                stripeContainer.style.display = 'block';
+            } else if (this.value === 'fpx_online_banking') {
+                fpxContainer.style.display = 'block';
+            }
+        });
+
+        // Handle Form Submission
+        form.addEventListener('submit', function (event) {
+
+            if (paymentSelect.value === 'credit-card') {
+                event.preventDefault(); // Stop default submission to validate Stripe first
+
+                submitButton.disabled = true;
+                submitButton.innerText = 'Processing...';
+
+                stripe.createToken(card).then(function (result) {
+                    if (result.error) {
+                        // Show error
+                        const errorElement = document.getElementById('card-errors');
+                        errorElement.textContent = result.error.message;
+                        submitButton.disabled = false;
+                        submitButton.innerText = 'Place Order';
+                    } else {
+                        // Success!
+                        form.submit();
+                    }
+                });
+            } else if (paymentSelect.value === 'grab_pay') {
+                event.preventDefault();
+                if (confirm("Redirecting to GrabPay Secure Gateway...\n\nClick OK to Authorize Payment.\nClick Cancel to simulate failed authorization.")) {
+                     // Simulate processing delay
+                     submitButton.disabled = true;
+                     submitButton.innerText = 'Authorizing...';
+                     setTimeout(() => { form.submit(); }, 1000);
+                } else {
+                     alert("Payment Authorization Failed. Please try again.");
+                }
+            } else if (paymentSelect.value === 'fpx_online_banking') {
+                event.preventDefault();
+                const bank = document.getElementById('fpx_bank').value;
+                if (!bank) {
+                    alert("Please select your bank.");
+                    return;
+                }
+                if (confirm("Redirecting to " + bank + "...\n\nClick OK to Login and Authorize.\nClick Cancel to simulate failed authorization.")) {
+                    submitButton.disabled = true;
+                    submitButton.innerText = 'Connecting to Bank...';
+                    setTimeout(() => { form.submit(); }, 1000);
+                } else {
+                    alert("Bank Authorization Failed. Transaction Cancelled.");
+                }
+            } else {
+                return true;
+            }
+        });
+    });
+</script>
 
 <?php include('../includes/footer.php'); ?>
 <?php include('../includes/end.php'); ?>
