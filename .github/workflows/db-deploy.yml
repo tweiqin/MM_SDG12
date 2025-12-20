@@ -1,4 +1,4 @@
-name: 503 - Database Schema Migration Only
+name:  Database Migration
 on:
   workflow_dispatch:
     inputs:
