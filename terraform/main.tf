@@ -1,6 +1,4 @@
-#####################################################################
 # Terraform Configuration
-#####################################################################
 terraform {
   required_providers {
     aws = {
@@ -14,47 +12,33 @@ terraform {
   }
 }
 
-#####################################################################
 # Root Providers
-#####################################################################
 provider "aws" {
   region = var.region
 }
 
-
-
-
-
-#####################################################################
 # Virtual Private Cloud
-#####################################################################
 module "vpc" {
   source       = "./modules/vpc"
   project_name = var.project_name
   vpc_cidr     = var.vpc_cidr
 }
 
-#####################################################################
 # Security Groups
-#####################################################################
 module "security" {
   source       = "./modules/security"
   project_name = var.project_name
   vpc_id       = module.vpc.vpc_id
 }
 
-#####################################################################
 # Secrets Manager
-#####################################################################
 module "secrets" {
   source       = "./modules/secrets"
   project_name = var.project_name
   db_password  = var.db_password
 }
 
-#####################################################################
 # RDS Database
-#####################################################################
 module "database" {
   source             = "./modules/database"
   project_name       = var.project_name
@@ -80,9 +64,7 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-#####################################################################
 # EC2 Instances
-#####################################################################
 module "compute" {
   source        = "./modules/compute"
   project_name  = var.project_name
@@ -105,10 +87,7 @@ module "compute" {
   db_password_secret_name = module.secrets.secret_name
 }
 
-
-#####################################################################
 # Public Load Balancers
-#####################################################################
 module "public_alb" {
   source            = "./modules/alb"
   project_name      = var.project_name
@@ -119,24 +98,14 @@ module "public_alb" {
   name_prefix = "public-alb"
 }
 
-
-
-
-
-#####################################################################
 # S3 Storage (Static Assets)
-#####################################################################
 module "storage" {
   source       = "./modules/storage"
   project_name = var.project_name
   assets_dir   = "${path.module}/../frontend/public/assets/images"
 }
 
-
-
-#####################################################################
 # CloudWatch Monitoring
-#####################################################################
 module "monitoring" {
   source       = "./modules/monitoring"
   project_name = var.project_name
@@ -150,11 +119,7 @@ module "monitoring" {
   public_tg_arn_suffix  = module.public_alb.target_group_arn_suffix
 }
 
-
-
-#####################################################################
 # SQL Automation
-#####################################################################
 resource "null_resource" "db_setup" {
   depends_on = [module.database]
 
