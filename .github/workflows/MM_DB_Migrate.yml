@@ -1,4 +1,5 @@
-name:  Database Migration
+name: MM - Database Migration
+
 on:
   workflow_dispatch:
     inputs:
@@ -8,13 +9,10 @@ on:
         default: 'no'
 
 jobs:
-  deploy-db:
+  migrate:
+    name: Run Django Migrate
     runs-on: ubuntu-latest
     
-    defaults:
-      run:
-        working-directory: ./terraform
-
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -24,9 +22,9 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        aws-region: "ap-southeast-1"
 
-    - name: Run Schema Migration Only (Safe)
+    - name: Execute Migration via SSM
       shell: bash
       run: |
         if [[ "${{ github.event.inputs.confirm }}" != "yes" ]]; then
@@ -34,17 +32,17 @@ jobs:
           exit 1
         fi
 
-        echo ">>> Step 1: Locating Resources..."
-        # Find ASG Name dynamically (ends with -api-asg)
-        ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[?contains(AutoScalingGroupName, '-api-asg')].AutoScalingGroupName" --output text | head -n 1)
+        echo ">>> Step 1: Locating Web ASG..."
+        # Find ASG Name dynamically (ends with -web-asg)
+        ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[?contains(AutoScalingGroupName, '-web-asg')].AutoScalingGroupName" --output text | head -n 1)
 
-        if [ -z "$ASG_NAME" ]; then
-           echo "Error: Could not find ASG."
+        if [ -z "$ASG_NAME" ] || [ "$ASG_NAME" == "None" ]; then
+           echo "Error: Could not find Web ASG."
            exit 1
         fi
         echo "   ASG: $ASG_NAME"
 
-        echo ">>> Step 2: Finding API Instance..."
+        echo ">>> Step 2: Finding Healthy Instance..."
         INSTANCE_ID=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$ASG_NAME" --query "AutoScalingGroups[0].Instances[?LifecycleState=='InService'].InstanceId | [0]" --output text)
 
         if [ "$INSTANCE_ID" == "None" ] || [ -z "$INSTANCE_ID" ]; then
@@ -55,8 +53,8 @@ jobs:
 
         echo ">>> Step 3: Sending Migration Command..."
         
-        # We only run 'migrate', NOT 'loaddata'
-        CMD_RAW="docker_id=\$(sudo docker ps -q --filter ancestor=peekachiu/strada-backend:latest | head -n 1) && if [ -z \"\$docker_id\" ]; then echo 'Backend container not found!'; exit 1; fi && sudo docker exec \$docker_id python manage.py migrate"
+        # Target the 'peekachiu/makanmystery' container
+        CMD_RAW="docker_id=\$(sudo docker ps -q --filter ancestor=peekachiu/makanmystery:latest | head -n 1) && if [ -z \"\$docker_id\" ]; then echo 'Container peekachiu/makanmystery not found!'; exit 1; fi && sudo docker exec \$docker_id python manage.py migrate"
         
         # Escape double quotes for JSON
         CMD_ESCAPED=${CMD_RAW//\"/\\\"}
