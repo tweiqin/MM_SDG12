@@ -1,3 +1,18 @@
 output "db_endpoint" {
-  value = split(":", aws_db_instance.default.endpoint)[0]
+  description = "The connection endpoint"
+  value       = aws_db_instance.main.endpoint
+}
+
+output "db_address" {
+  description = "The address of the RDS instance"
+  value       = aws_db_instance.main.address
+}
+
+output "db_port" {
+  description = "The database port"
+  value       = aws_db_instance.main.port
+}
+
+output "db_instance_id" {
+  value = aws_db_instance.main.identifier
 }

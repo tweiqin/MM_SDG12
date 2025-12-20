@@ -1,4 +1,14 @@
-output "application_url" {
-  description = "The DNS name of the Load Balancer"
-  value       = "http://${module.compute.alb_dns_name}"
+output "alb_dns_name" {
+  value = module.public_alb.alb_dns_name
 }
+
+output "rds_endpoint" {
+  value = module.database.db_endpoint
+}
+
+
+
+output "s3_bucket_name" {
+  value = module.storage.bucket_name
+}
+

@@ -1,38 +1,65 @@
-variable "aws_region" {
-  description = "The AWS region to deploy to"
+#####################################################################
+# Root Configuration
+#####################################################################
+variable "region" {
+  description = "AWS Region"
   type        = string
   default     = "ap-southeast-1"
 }
 
-variable "ami_id" {
-  description = "The AMI ID to use for the instance"
+variable "project_name" {
+  description = "Project Name"
   type        = string
+  default     = "makanmystery"
 }
 
+variable "domain_name" {
+  description = "Domain Name"
+  type        = string
+  # default     = "makanmystery.click"
+}
+
+#####################################################################
+# Virtual Private Cloud (VPC)
+#####################################################################
+variable "vpc_cidr" {
+  description = "VPC CIDR"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+#####################################################################
+# Compute (EC2)
+#####################################################################
 variable "instance_type" {
-  description = "The type of instance to start"
+  description = "EC2 Instance Type"
   type        = string
-  default     = "t2.micro"
+  default     = "t2.small"
 }
 
-variable "docker_image_uri" {
-  description = "The URI of the Docker image to pull"
+variable "ami_id" {
+  description = "AMI ID (Amazon Linux 2)"
   type        = string
+  default     = "ami-0c55b159cbfafe1f0" # Update this for your region!
 }
 
-# Database Variables
+
+#####################################################################
+# Database (RDS)
+#####################################################################
+variable "db_name" {
+  description = "Database Name"
+  type        = string
+  default     = "makanmystery_db"
+}
+
 variable "db_username" {
-  description = "The master username for the database"
+  description = "Database Username"
   type        = string
 }
 
 variable "db_password" {
-  description = "The master password for the database"
+  description = "Database Password"
   type        = string
   sensitive   = true
-}
-
-variable "db_name" {
-  description = "The name of the database to connect to"
-  type        = string
 }

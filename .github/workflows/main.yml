@@ -1,14 +1,15 @@
-name: MakanMystery CI/CD
+name: "MakanMystery Deployment"
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build-and-deploy:
+  docker-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Login to Docker Hub
@@ -17,24 +18,28 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker Image
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/makanmystery:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/makanmystery:latest
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/makanmystery:latest
+
+  terraform-deploy:
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.5.0"
 
       - name: Terraform Init & Apply
+        working-directory: ./terraform
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: "ap-southeast-1"
         run: |
-          cd terraform
           terraform init
-          terraform apply -auto-approve \
-            -var="db_username=admin" \
-            -var="db_password=${{ secrets.DB_PASSWORD }}"
+          terraform apply -auto-approve -var="db_password=${{ secrets.DB_PASSWORD }}"

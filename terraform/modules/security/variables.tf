@@ -1,4 +1,9 @@
 variable "vpc_id" {
-  description = "The VPC ID where security groups will be created"
+  description = "The ID of the VPC"
+  type        = string
+}
+
+variable "project_name" {
+  description = "Project name to be used for tagging resources"
   type        = string
 }

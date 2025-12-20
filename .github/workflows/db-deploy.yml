@@ -1,61 +1,88 @@
-name: Database Deployment (Manual Seed)
-
+name: 503 - Database Schema Migration Only
 on:
-  workflow_dispatch: # Allows manual triggering from GitHub UI
-
-permissions:
-  id-token: write
-  contents: read
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "yes" to confirm migration (SAFE: No Data Loss)'
+        required: true
+        default: 'no'
 
 jobs:
-  db-seed:
-    name: Run Database Seeding
+  deploy-db:
     runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./terraform
+
     steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-      - name: Run Schema Seed via SSM
-        shell: bash
-        run: |
-          echo "Starting Manual Database Seeding..."
-          
-          # 1. Find the Auto Scaling Group
-          ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[?contains(AutoScalingGroupName, 'app_asg')].AutoScalingGroupName" --output text | head -n 1)
-          if [ -z "$ASG_NAME" ]; then
-            echo "Error: ASG not found. Is the infrastructure deployed?"
-            exit 1
-          fi
-          echo "Found ASG: $ASG_NAME"
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
-          # 2. Find a healthy Instance
-          INSTANCE_ID=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$ASG_NAME" --query "AutoScalingGroups[0].Instances[?LifecycleState=='InService'].InstanceId | [0]" --output text)
-          
-          if [ "$INSTANCE_ID" == "None" ] || [ -z "$INSTANCE_ID" ]; then
-             echo "Error: No healthy instances found to run migration on."
-             exit 1
-          fi
-          echo "Target Instance: $INSTANCE_ID"
+    - name: Run Schema Migration Only (Safe)
+      shell: bash
+      run: |
+        if [[ "${{ github.event.inputs.confirm }}" != "yes" ]]; then
+          echo "Please confirm by typing 'yes' in the workflow input."
+          exit 1
+        fi
 
-          # 3. Send SSM Command to Docker Container
-          # This assumes the container has not changed ID significantly or we just pick the first one.
-          CMD="docker_id=\$(sudo docker ps -q | head -n 1) && [ ! -z \"\$docker_id\" ] && sudo docker exec \$docker_id sh -c 'if [ -f /var/www/html/mm_sdg12.sql ]; then mysql -h \$DB_HOST -u \$DB_USER -p\$DB_PASS \$DB_NAME < /var/www/html/mm_sdg12.sql; else echo \"SQL file not found\"; fi'"
-          
-          COMMAND_ID=$(aws ssm send-command \
-            --instance-ids "$INSTANCE_ID" \
-            --document-name "AWS-RunShellScript" \
-            --parameters "{\"commands\":[\"$CMD\"]}" \
-            --query "Command.CommandId" \
-            --output text)
-            
-          echo "Command Sent: $COMMAND_ID"
-          
-          # Wait for execution
-          aws ssm wait command-executed --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID"
-          
-          # Output result
-          echo ">>> Execution Output:"
-          aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "StandardOutputContent" --output text
+        echo ">>> Step 1: Locating Resources..."
+        # Find ASG Name dynamically (ends with -api-asg)
+        ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[?contains(AutoScalingGroupName, '-api-asg')].AutoScalingGroupName" --output text | head -n 1)
+
+        if [ -z "$ASG_NAME" ]; then
+           echo "Error: Could not find ASG."
+           exit 1
+        fi
+        echo "   ASG: $ASG_NAME"
+
+        echo ">>> Step 2: Finding API Instance..."
+        INSTANCE_ID=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$ASG_NAME" --query "AutoScalingGroups[0].Instances[?LifecycleState=='InService'].InstanceId | [0]" --output text)
+
+        if [ "$INSTANCE_ID" == "None" ] || [ -z "$INSTANCE_ID" ]; then
+           echo "Error: No instances found in ASG!"
+           exit 1
+        fi
+        echo "   Target Instance: $INSTANCE_ID"
+
+        echo ">>> Step 3: Sending Migration Command..."
+        
+        # We only run 'migrate', NOT 'loaddata'
+        CMD_RAW="docker_id=\$(sudo docker ps -q --filter ancestor=peekachiu/strada-backend:latest | head -n 1) && if [ -z \"\$docker_id\" ]; then echo 'Backend container not found!'; exit 1; fi && sudo docker exec \$docker_id python manage.py migrate"
+        
+        # Escape double quotes for JSON
+        CMD_ESCAPED=${CMD_RAW//\"/\\\"}
+        PARAMS_JSON="{\"commands\":[\"$CMD_ESCAPED\"]}"
+
+        COMMAND_ID=$(aws ssm send-command \
+          --instance-ids "$INSTANCE_ID" \
+          --document-name "AWS-RunShellScript" \
+          --parameters "$PARAMS_JSON" \
+          --query "Command.CommandId" \
+          --output text)
+
+        echo "   Command Sent! ID: $COMMAND_ID"
+        
+        # Wait for command execution
+        aws ssm wait command-executed --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" || true
+
+        # Fetch output
+        echo ">>> Output:"
+        aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "StandardOutputContent" --output text
+        
+        # Fetch errors
+        ERRORS=$(aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "StandardErrorContent" --output text)
+        if [ ! -z "$ERRORS" ]; then
+           echo ">>> Errors:"
+           echo "$ERRORS"
+           exit 1
+        fi
+        echo ">>> Migration Complete!"

@@ -1,3 +1,5 @@
-output "alb_dns_name" {
-  value = aws_lb.main.dns_name
+output "web_asg_name" {
+  value = aws_autoscaling_group.web.name
 }
+
+
