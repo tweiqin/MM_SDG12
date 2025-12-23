@@ -40,9 +40,6 @@ resource "aws_s3_object" "assets" {
   }, regex("\\.[^.]+$", each.value), "application/octet-stream")
 }
 
-  }, regex("\\.[^.]+$", each.value), "application/octet-stream")
-}
-
 resource "aws_s3_object" "sql_file" {
   count = var.upload_sql ? 1 : 0
 

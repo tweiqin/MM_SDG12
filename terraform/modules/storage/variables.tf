@@ -7,7 +7,6 @@ variable "assets_dir" {
   description = "Local path to static assets to upload to S3"
   type        = string
   default     = ""
-  default     = ""
 }
 
 variable "upload_sql" {

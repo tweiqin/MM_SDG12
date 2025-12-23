@@ -19,15 +19,10 @@ variable "ami_id" {
   type        = string
 }
 
-  type        = string
-}
-
 variable "docker_image" {
   description = "Docker Image to deploy"
   type        = string
 }
-
-
 
 variable "public_subnet_ids" {
   description = "List of public subnet IDs"
