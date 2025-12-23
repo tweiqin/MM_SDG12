@@ -119,11 +119,11 @@ resource "aws_security_group" "rds" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description     = "PostgreSQL from API Servers"
-    from_port       = 5432
-    to_port         = 5432
+    description     = "MySQL from Web Servers"
+    from_port       = 3306
+    to_port         = 3306
     protocol        = "tcp"
-    security_groups = [aws_security_group.api.id]
+    security_groups = [aws_security_group.web.id]
   }
 
   tags = {
