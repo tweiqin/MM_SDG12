@@ -79,3 +79,9 @@ variable "db_password_secret_name" {
   description = "Name of the Database Password Secret"
   type        = string
 }
+
+variable "chatbot_api_key" {
+  description = "API Key for the Chatbot"
+  type        = string
+  sensitive   = true
+}

@@ -60,3 +60,9 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "chatbot_api_key" {
+  description = "API Key for the Chatbot"
+  type        = string
+  sensitive   = true
+}

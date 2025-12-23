@@ -87,6 +87,8 @@ module "compute" {
 
   db_password_secret_arn  = module.secrets.secret_arn
   db_password_secret_name = module.secrets.secret_name
+
+  chatbot_api_key = var.chatbot_api_key
 }
 
 # Public Load Balancers

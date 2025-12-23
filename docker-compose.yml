@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=makanmystery_db
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - CHATBOT_API_KEY=${CHATBOT_API_KEY}
+    depends_on:
+      - db
+    networks:
+      - mm-network
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_DATABASE: makanmystery_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+      # Mount the SQL dump to be imported on first startup
+      - ./mm_sdg12.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mm-network
+
+  phpmyadmin:
+    image: tweiqin/makanmystery:latest
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+    depends_on:
+      - db
+    networks:
+      - mm-network
+
+volumes:
+  db_data:
+
+
+networks:
+  mm-network:
+    driver: bridge
