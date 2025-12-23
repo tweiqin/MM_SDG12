@@ -1,6 +1,4 @@
-#####################################################################
 # Root Configuration
-#####################################################################
 variable "region" {
   description = "AWS Region"
   type        = string
@@ -31,18 +29,14 @@ variable "domain_name" {
   # default     = "makanmystery.click"
 }
 
-#####################################################################
 # Virtual Private Cloud (VPC)
-#####################################################################
 variable "vpc_cidr" {
   description = "VPC CIDR"
   type        = string
   default     = "10.0.0.0/16"
 }
 
-#####################################################################
 # Compute (EC2)
-#####################################################################
 variable "instance_type" {
   description = "EC2 Instance Type"
   type        = string
@@ -55,10 +49,7 @@ variable "ami_id" {
   default     = "ami-0c55b159cbfafe1f0" # Update this for your region!
 }
 
-
-#####################################################################
 # Database (RDS)
-#####################################################################
 variable "db_name" {
   description = "Database Name"
   type        = string
