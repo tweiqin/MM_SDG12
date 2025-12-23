@@ -19,8 +19,11 @@ variable "ami_id" {
   type        = string
 }
 
-variable "app_version" {
-  description = "Application Version (Git SHA)"
+  type        = string
+}
+
+variable "docker_image" {
+  description = "Docker Image to deploy"
   type        = string
 }
 

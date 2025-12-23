@@ -96,7 +96,7 @@ resource "aws_launch_template" "web" {
                 -e DB_PASSWORD=$DB_PASSWORD \
                 -e PROJECT_NAME='MakanMystery' \
                 -e ALLOWED_HOSTS='*' \
-                peekachiu/makanmystery:latest
+                ${var.docker_image}
               
               # App Version: ${var.app_version}
               EOF

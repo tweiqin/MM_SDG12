@@ -72,6 +72,7 @@ module "compute" {
   instance_type = var.instance_type
   ami_id        = data.aws_ami.ubuntu.id
   app_version   = var.app_version
+  docker_image  = var.docker_image
   # ssh_key_name removed as we use SSM
   public_subnet_ids         = module.vpc.public_subnet_ids
   private_subnet_ids        = module.vpc.private_subnet_ids
