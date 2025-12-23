@@ -22,7 +22,7 @@ variable "app_version" {
 variable "docker_image" {
   description = "Docker Image to deploy"
   type        = string
-  default     = "peekachiu/makanmystery:latest"
+  default     = "tweiqin/makanmystery:latest"
 }
 
 variable "domain_name" {
