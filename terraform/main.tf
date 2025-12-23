@@ -74,10 +74,10 @@ module "compute" {
   app_version   = var.app_version
   docker_image  = var.docker_image
   # ssh_key_name removed as we use SSM
-  public_subnet_ids         = module.vpc.public_subnet_ids
-  private_subnet_ids        = module.vpc.private_subnet_ids
-  web_sg_id                 = module.security.web_sg_id
-  public_target_group_arn   = module.public_alb.target_group_arn
+  public_subnet_ids       = module.vpc.public_subnet_ids
+  private_subnet_ids      = module.vpc.private_subnet_ids
+  web_sg_id               = module.security.web_sg_id
+  public_target_group_arn = module.public_alb.target_group_arn
 
   # Database Connection
   db_host     = module.database.db_address
