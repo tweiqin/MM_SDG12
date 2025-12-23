@@ -23,11 +23,7 @@ variable "docker_image" {
   default     = "tweiqin/makanmystery:latest"
 }
 
-variable "domain_name" {
-  description = "Domain Name"
-  type        = string
-  # default     = "makanmystery.click"
-}
+
 
 # Virtual Private Cloud (VPC)
 variable "vpc_cidr" {
