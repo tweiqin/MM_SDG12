@@ -144,7 +144,16 @@
                 loadingDiv.remove();
 
                 if (!response.ok) {
-                    appendMessage('bot', 'Sorry, I lost connection to the server.', true);
+                    try {
+                        const data = await response.json();
+                        if (data.reply) {
+                            appendMessage('bot', data.reply, true);
+                        } else {
+                            appendMessage('bot', 'Server Error (' + response.status + '). Please try again later.', true);
+                        }
+                    } catch (e) {
+                        appendMessage('bot', 'Sorry, I lost connection to the server. (Status ' + response.status + ')', true);
+                    }
                     return;
                 }
 
