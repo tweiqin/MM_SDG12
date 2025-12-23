@@ -50,8 +50,7 @@ jobs:
         with:
           terraform_version: "1.5.0"
 
-      - name: Install MySQL Client
-        run: sudo apt-get update && sudo apt-get install -y mysql-client
+
 
       - name: Terraform Init
         run: terraform init
@@ -63,3 +62,52 @@ jobs:
             -var="db_password=${{ secrets.DB_PASSWORD }}" \
             -var="app_version=${{ github.sha }}" \
             -var="docker_image=${{ secrets.DOCKERHUB_USERNAME }}/makanmystery:latest"
+
+      - name: DB Migration via SSM
+        if: success()
+        run: |
+          # Get Outputs from Terraform
+          cd terraform
+          
+          S3_BUCKET=$(terraform output -raw s3_bucket_name)
+          S3_KEY=$(terraform output -raw db_schema_s3_key)
+          SECRET_NAME=$(terraform output -raw db_password_secret_name)
+          # RDS Endpoint includes port, we need host usually, but let's check format
+          # Typically endpoint is host:port. We can split it or pass as is if mysql client handles it.
+          # Terraform output rds_endpoint is typically host:port
+          DB_ENDPOINT=$(terraform output -raw rds_endpoint)
+          DB_HOST=$(echo $DB_ENDPOINT | cut -d':' -f1)
+          
+          echo "Triggering Migration on ASG Instance..."
+          
+          # Get an instance ID from the ASG (we need a target to run the command)
+          # We'll use the tag we set in the ASG
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=makanmystery-web-asg" "Name=instance-state-name,Values=running" \
+            --query "Reservations[0].Instances[0].InstanceId" --output text)
+            
+          if [ "$INSTANCE_ID" == "None" ] || [ -z "$INSTANCE_ID" ]; then
+            echo "No running instances found to execute migration."
+            exit 1
+          fi
+          
+          echo "Target Instance: $INSTANCE_ID"
+          
+          # We need to copy the script to the instance or run inline. 
+          # Simplest is to download the script from repo or just run commands inline.
+          # Since we created scripts/db_migrate.sh, we should upload it too or just run the commands.
+          # However, uploading scripts/db_migrate.sh to S3 wasn't explicitly done yet (only SQL file).
+          # Let's run the logic inline via AWS-RunShellScript to be safe and avoid another upload dependency.
+          
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --targets "Key=instanceids,Values=$INSTANCE_ID" \
+            --parameters commands="[
+              'aws s3 cp s3://$S3_BUCKET/$S3_KEY /tmp/migration.sql',
+              'apt-get update && apt-get install -y mysql-client',
+              'DB_PASSWORD=\$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME --query SecretString --output text --region ap-southeast-1)',
+              'mysql -h $DB_HOST -u ${{ secrets.DB_USERNAME }} -p\"\$DB_PASSWORD\" makanmystery_db < /tmp/migration.sql',
+              'echo Migration Completed'
+            ]" \
+            --comment "Run DB Migration" \
+            --output text

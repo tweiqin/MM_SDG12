@@ -40,3 +40,15 @@ resource "aws_s3_object" "assets" {
   }, regex("\\.[^.]+$", each.value), "application/octet-stream")
 }
 
+  }, regex("\\.[^.]+$", each.value), "application/octet-stream")
+}
+
+resource "aws_s3_object" "sql_file" {
+  count = var.upload_sql ? 1 : 0
+
+  bucket = aws_s3_bucket.static_assets.id
+  key    = "db/schema.sql"
+  source = var.sql_file_path
+
+  etag = filemd5(var.sql_file_path)
+}

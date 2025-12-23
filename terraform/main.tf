@@ -102,9 +102,11 @@ module "public_alb" {
 
 # S3 Storage (Static Assets)
 module "storage" {
-  source       = "./modules/storage"
-  project_name = var.project_name
-  assets_dir   = "${path.module}/../frontend/public/assets/images"
+  source        = "./modules/storage"
+  project_name  = var.project_name
+  assets_dir    = "${path.module}/../frontend/public/assets/images"
+  upload_sql    = true
+  sql_file_path = "${path.module}/../mm_sdg12.sql"
 }
 
 # CloudWatch Monitoring
@@ -119,17 +121,4 @@ module "monitoring" {
 
   public_alb_arn_suffix = module.public_alb.alb_arn_suffix
   public_tg_arn_suffix  = module.public_alb.target_group_arn_suffix
-}
-
-# SQL Automation
-resource "null_resource" "db_setup" {
-  depends_on = [module.database]
-
-  triggers = {
-    sql_hash = filemd5("../mm_sdg12.sql")
-  }
-
-  provisioner "local-exec" {
-    command = "mysql -h ${module.database.db_address} -u ${var.db_username} -p${var.db_password} ${var.db_name} < ../mm_sdg12.sql"
-  }
 }
