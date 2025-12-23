@@ -53,8 +53,8 @@ jobs:
 
         echo ">>> Step 3: Sending Migration Command..."
         
-        # Target the 'peekachiu/makanmystery' container
-        CMD_RAW="docker_id=\$(sudo docker ps -q --filter ancestor=peekachiu/makanmystery:latest | head -n 1) && if [ -z \"\$docker_id\" ]; then echo 'Container peekachiu/makanmystery not found!'; exit 1; fi && sudo docker exec \$docker_id python manage.py migrate"
+        # Target the 'tweiqin/makanmystery' container
+        CMD_RAW="docker_id=\$(sudo docker ps -q --filter ancestor=tweiqin/makanmystery:latest | head -n 1) && if [ -z \"\$docker_id\" ]; then echo 'Container tweiqin/makanmystery not found!'; exit 1; fi && sudo docker exec \$docker_id python manage.py migrate"
         
         # Escape double quotes for JSON
         CMD_ESCAPED=${CMD_RAW//\"/\\\"}
