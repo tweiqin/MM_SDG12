@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
 
     // 1. Payload Construction
     $data = [
-        "model" => "google/gemma-3-27b-it:free",
+        "model" => "google/gemma-3-4b-it:free",
         "messages" => [
             [
                 "role" => "system",
