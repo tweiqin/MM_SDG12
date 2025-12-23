@@ -67,7 +67,7 @@ jobs:
         if: success()
         run: |
           # Get Outputs from Terraform
-          cd terraform
+
           
           S3_BUCKET=$(terraform output -raw s3_bucket_name)
           S3_KEY=$(terraform output -raw db_schema_s3_key)
