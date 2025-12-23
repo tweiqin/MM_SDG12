@@ -10,7 +10,7 @@ on:
 
 jobs:
   migrate:
-    name: Run Django Migrate
+    name: Run DB Migration
     runs-on: ubuntu-latest
     
     steps:
@@ -36,6 +36,11 @@ jobs:
           echo "Please confirm by typing 'yes' in the workflow input."
           exit 1
         fi
+        
+        # Clean DB_HOST (remove port if present)
+        # Often Secrets contain host:port, but mysql -h expects just host.
+        DB_HOST_CLEAN=$(echo "$DB_HOST" | cut -d':' -f1)
+        echo "Using DB Host: $DB_HOST_CLEAN (Port stripped if present)"
 
         echo ">>> Step 1: Locating Web ASG..."
         # Find ASG Name dynamically (ends with -web-asg)
@@ -71,7 +76,7 @@ jobs:
         CMD_RAW="docker_id=\$(sudo docker ps -q --filter ancestor=tweiqin/makanmystery:latest | head -n 1) && \
         if [ -z \"\$docker_id\" ]; then echo 'Container tweiqin/makanmystery not found!'; exit 1; fi && \
         echo \"Found Container: \$docker_id\" && \
-        sudo docker exec \$docker_id sh -c \"mysql -h $DB_HOST -u $DB_USER -p'$DB_PASS' $DB_NAME < /var/www/html/mm_sdg12.sql\""
+        sudo docker exec \$docker_id sh -c \"mysql -h $DB_HOST_CLEAN -u $DB_USER -p'$DB_PASS' $DB_NAME < /var/www/html/mm_sdg12.sql\""
         
         # Escape double quotes for JSON parameter passing to SSM
         CMD_ESCAPED=${CMD_RAW//\"/\\\"}
