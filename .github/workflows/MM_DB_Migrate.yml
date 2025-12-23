@@ -26,6 +26,11 @@ jobs:
 
     - name: Execute Migration via SSM
       shell: bash
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_USER: ${{ secrets.DB_USERNAME }}
+        DB_PASS: ${{ secrets.DB_PASSWORD }}
+        DB_NAME: "makanmystery_db"
       run: |
         if [[ "${{ github.event.inputs.confirm }}" != "yes" ]]; then
           echo "Please confirm by typing 'yes' in the workflow input."
@@ -53,10 +58,22 @@ jobs:
 
         echo ">>> Step 3: Sending Migration Command..."
         
-        # Target the 'tweiqin/makanmystery' container
-        CMD_RAW="docker_id=\$(sudo docker ps -q --filter ancestor=tweiqin/makanmystery:latest | head -n 1) && if [ -z \"\$docker_id\" ]; then echo 'Container tweiqin/makanmystery not found!'; exit 1; fi && sudo docker exec \$docker_id python manage.py migrate"
+        # We need to execute the migration inside the running container.
+        # The SQL file is located at /var/www/html/mm_sdg12.sql inside the container.
         
-        # Escape double quotes for JSON
+        # Construct the command to run on the EC2 instance
+        # 1. Find the container ID
+        # 2. Exec into container and run mysql
+        
+        # NOTE: We are embedding secrets into the command string. This is sent to SSM.
+        # Be careful with quoting.
+        
+        CMD_RAW="docker_id=\$(sudo docker ps -q --filter ancestor=tweiqin/makanmystery:latest | head -n 1) && \
+        if [ -z \"\$docker_id\" ]; then echo 'Container tweiqin/makanmystery not found!'; exit 1; fi && \
+        echo \"Found Container: \$docker_id\" && \
+        sudo docker exec \$docker_id sh -c \"mysql -h $DB_HOST -u $DB_USER -p'$DB_PASS' $DB_NAME < /var/www/html/mm_sdg12.sql\""
+        
+        # Escape double quotes for JSON parameter passing to SSM
         CMD_ESCAPED=${CMD_RAW//\"/\\\"}
         PARAMS_JSON="{\"commands\":[\"$CMD_ESCAPED\"]}"
 
@@ -81,6 +98,14 @@ jobs:
         if [ ! -z "$ERRORS" ]; then
            echo ">>> Errors:"
            echo "$ERRORS"
-           exit 1
+           # We don't exit 1 here immediately because sometimes legitimate output is in stderr (warnings), 
+           # but for migration usually silence is golden or specific errors.
+           # If it fails, usually mysql returns non-zero exit code which SSM captures as status.
+           # Let's check status.
+           STATUS=$(aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "Status" --output text)
+           if [ "$STATUS" == "Failed" ]; then
+              echo "Migration Failed."
+              exit 1
+           fi
         fi
         echo ">>> Migration Complete!"
