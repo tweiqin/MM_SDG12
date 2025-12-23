@@ -58,7 +58,12 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan
+        run: |
+          terraform plan \
+            -var="db_username=${{ secrets.DB_USERNAME }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
+            -var="app_version=${{ github.sha }}" \
+            -var="docker_image=${{ secrets.DOCKERHUB_USERNAME }}/makanmystery:latest"
 
       - name: Terraform Apply
         run: |
