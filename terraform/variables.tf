@@ -23,8 +23,6 @@ variable "docker_image" {
   default     = "tweiqin/makanmystery:latest"
 }
 
-
-
 # Virtual Private Cloud (VPC)
 variable "vpc_cidr" {
   description = "VPC CIDR"
