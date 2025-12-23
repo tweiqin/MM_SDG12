@@ -71,6 +71,7 @@ module "compute" {
   region        = var.region
   instance_type = var.instance_type
   ami_id        = data.aws_ami.ubuntu.id
+  app_version   = var.app_version
   # ssh_key_name removed as we use SSM
   public_subnet_ids         = module.vpc.public_subnet_ids
   private_subnet_ids        = module.vpc.private_subnet_ids
@@ -122,6 +123,10 @@ module "monitoring" {
 # SQL Automation
 resource "null_resource" "db_setup" {
   depends_on = [module.database]
+
+  triggers = {
+    sql_hash = filemd5("../mm_sdg12.sql")
+  }
 
   provisioner "local-exec" {
     command = "mysql -h ${module.database.db_address} -u ${var.db_username} -p${var.db_password} ${var.db_name} < ../mm_sdg12.sql"

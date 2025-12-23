@@ -19,6 +19,11 @@ variable "ami_id" {
   type        = string
 }
 
+variable "app_version" {
+  description = "Application Version (Git SHA)"
+  type        = string
+}
+
 
 
 variable "public_subnet_ids" {

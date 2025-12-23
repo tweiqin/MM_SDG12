@@ -1,6 +1,4 @@
-#####################################################################
 # IAM Role for SSM
-#####################################################################
 resource "aws_iam_role" "ssm_role" {
   name = "${var.project_name}-ssm-role"
 
@@ -99,6 +97,8 @@ resource "aws_launch_template" "web" {
                 -e PROJECT_NAME='MakanMystery' \
                 -e ALLOWED_HOSTS='*' \
                 peekachiu/makanmystery:latest
+              
+              # App Version: ${var.app_version}
               EOF
   )
 }

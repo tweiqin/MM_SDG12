@@ -57,4 +57,6 @@ jobs:
         run: |
           terraform apply -auto-approve \
             -var="db_username=${{ secrets.DB_USERNAME }}" \
-            -var="db_password=${{ secrets.DB_PASSWORD }}"
+            -var="db_username=${{ secrets.DB_USERNAME }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
+            -var="app_version=${{ github.sha }}"

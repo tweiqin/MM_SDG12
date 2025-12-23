@@ -13,6 +13,12 @@ variable "project_name" {
   default     = "makanmystery"
 }
 
+variable "app_version" {
+  description = "Application Version (Git SHA)"
+  type        = string
+  default     = "latest"
+}
+
 variable "domain_name" {
   description = "Domain Name"
   type        = string
