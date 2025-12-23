@@ -42,17 +42,29 @@ jobs:
         DB_HOST_CLEAN=$(echo "$DB_HOST" | cut -d':' -f1)
         echo "Using DB Host: $DB_HOST_CLEAN (Port stripped if present)"
 
-        echo ">>> Step 1: Locating Web ASG..."
-        # Find ASG Name dynamically (ends with -web-asg)
+        echo ">>> Step 2: Finding Resources..."
+        # 2a. Find ASG
         ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[?contains(AutoScalingGroupName, '-web-asg')].AutoScalingGroupName" --output text | head -n 1)
-
         if [ -z "$ASG_NAME" ] || [ "$ASG_NAME" == "None" ]; then
            echo "Error: Could not find Web ASG."
            exit 1
         fi
         echo "   ASG: $ASG_NAME"
+        
+        # 2b. Find S3 Bucket (Tag Project=makanmystery)
+        BUCKET_NAME=$(aws s3api list-buckets --query "Buckets[?contains(Name, 'assets')].[Name]" --output text | grep "makanmystery" | head -n 1)
+        if [ -z "$BUCKET_NAME" ]; then
+             # Fallback search if naming convention differs
+             BUCKET_NAME=$(aws resourcegroupstaggingapi get-resources --tag-filters Key=Project,Values=makanmystery --resource-type-filters s3:bucket --query "ResourceTagMappingList[0].ResourceARN" --output text | cut -d':' -f6)
+        fi
+        
+        if [ -z "$BUCKET_NAME" ] || [ "$BUCKET_NAME" == "None" ]; then
+           echo "Error: Could not find Project S3 Bucket."
+           exit 1
+        fi
+        echo "   Bucket: $BUCKET_NAME"
 
-        echo ">>> Step 2: Finding Healthy Instance..."
+        echo ">>> Step 3: Finding Healthy Instance..."
         INSTANCE_ID=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$ASG_NAME" --query "AutoScalingGroups[0].Instances[?LifecycleState=='InService'].InstanceId | [0]" --output text)
 
         if [ "$INSTANCE_ID" == "None" ] || [ -z "$INSTANCE_ID" ]; then
@@ -61,25 +73,45 @@ jobs:
         fi
         echo "   Target Instance: $INSTANCE_ID"
 
-        echo ">>> Step 3: Sending Migration Command..."
+        echo ">>> Step 4: Sending Migration Command..."
         
-        # We need to execute the migration inside the running container.
-        # The SQL file is located at /var/www/html/mm_sdg12.sql inside the container.
+        # WE WILL RUN THIS ON THE HOST, NOT IN DOCKER
+        # Why? Because we need to download from S3 first.
+        # The host (EC2) has IAM role to access S3. The container might not.
+        # But the host needs mysql-client.
         
-        # Construct the command to run on the EC2 instance
-        # 1. Find the container ID
-        # 2. Exec into container and run mysql
+        # Scripts to run:
+        # 1. Install mysql-client (if missing)
+        # 2. Download SQL from S3
+        # 3. Drop/Create DB
+        # 4. Import
         
-        # NOTE: We are embedding secrets into the command string. This is sent to SSM.
-        # Be careful with quoting.
+        # NOTE: We use single quotes for shell script content to avoid variable expansion by GH Actions, 
+        # BUT we need to inject GH Secrets. So we use specific interpolation.
         
-        CMD_RAW="docker_id=\$(sudo docker ps -q --filter ancestor=tweiqin/makanmystery:latest | head -n 1) && \
-        if [ -z \"\$docker_id\" ]; then echo 'Container tweiqin/makanmystery not found!'; exit 1; fi && \
-        echo \"Found Container: \$docker_id\" && \
-        sudo docker exec \$docker_id sh -c \"mysql -h $DB_HOST_CLEAN -u $DB_USER -p'$DB_PASS' $DB_NAME < /var/www/html/mm_sdg12.sql\""
+        CMD_SCRIPT="
+        set -e
+        echo 'Installing dependencies...'
+        sudo apt-get update -y
+        sudo apt-get install -y mysql-client awscli
         
-        # Escape double quotes for JSON parameter passing to SSM
-        CMD_ESCAPED=${CMD_RAW//\"/\\\"}
+        echo 'Downloading schema.sql from s3://$BUCKET_NAME/db/schema.sql...'
+        aws s3 cp s3://$BUCKET_NAME/db/schema.sql /tmp/migration.sql
+        
+        echo 'Resetting Database...'
+        mysql -h $DB_HOST_CLEAN -u $DB_USER -p'$DB_PASS' -e 'DROP DATABASE IF EXISTS $DB_NAME; CREATE DATABASE $DB_NAME;'
+        
+        echo 'Importing SQL...'
+        mysql -h $DB_HOST_CLEAN -u $DB_USER -p'$DB_PASS' $DB_NAME < /tmp/migration.sql
+        
+        rm /tmp/migration.sql
+        echo 'Migration Success.'
+        "
+        
+        # Sanitize for JSON
+        CMD_ONELINE=$(echo "$CMD_SCRIPT" | tr '\n' ' ')
+        CMD_ESCAPED=${CMD_ONELINE//\"/\\\"}
+        
         PARAMS_JSON="{\"commands\":[\"$CMD_ESCAPED\"]}"
 
         COMMAND_ID=$(aws ssm send-command \
@@ -101,12 +133,9 @@ jobs:
         # Fetch errors
         ERRORS=$(aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "StandardErrorContent" --output text)
         if [ ! -z "$ERRORS" ]; then
-           echo ">>> Errors:"
+           echo ">>> Errors (Check if critical):"
            echo "$ERRORS"
-           # We don't exit 1 here immediately because sometimes legitimate output is in stderr (warnings), 
-           # but for migration usually silence is golden or specific errors.
-           # If it fails, usually mysql returns non-zero exit code which SSM captures as status.
-           # Let's check status.
+           
            STATUS=$(aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "Status" --output text)
            if [ "$STATUS" == "Failed" ]; then
               echo "Migration Failed."
