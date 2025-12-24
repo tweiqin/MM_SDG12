@@ -200,3 +200,4 @@ $quantity_left = (int) $product['quantity'];
 </div>
 
 <?php include('../includes/footer.php'); ?>
+<?php include('../includes/end.php'); ?>
