@@ -66,28 +66,28 @@
 
             <div class="col-md-3 col-6 mb-4">
                 <div class="stat-box"> <i class="fas fa-utensils fa-3x mb-3"></i>
-                    <h3 class="display-5 fw-bold" data-target="5000" id="meals_saved_counter">0</h3>
+                    <h3 class="display-5 fw-bold" data-target="500" id="meals_saved_counter">0</h3>
                     <p class="lead">Meals Saved</p>
                 </div>
             </div>
 
             <div class="col-md-3 col-6 mb-4">
                 <div class="stat-box"> <i class="fas fa-leaf fa-3x mb-3"></i>
-                    <h3 class="display-5 fw-bold" data-target="12500" id="co2_reduced_counter">0</h3>
+                    <h3 class="display-5 fw-bold" data-target="875" id="co2_reduced_counter">0</h3>
                     <p class="lead">CO₂ Reduced (kg)</p>
                 </div>
             </div>
 
             <div class="col-md-3 col-6 mb-4">
                 <div class="stat-box"> <i class="fas fa-users fa-3x mb-3"></i>
-                    <h3 class="display-5 fw-bold" data-target="1500" id="active_users_counter">0</h3>
+                    <h3 class="display-5 fw-bold" data-target="150" id="active_users_counter">0</h3>
                     <p class="lead">Active Users</p>
                 </div>
             </div>
 
             <div class="col-md-3 col-6 mb-4">
                 <div class="stat-box"> <i class="fas fa-store-alt fa-3x mb-3"></i>
-                    <h3 class="display-5 fw-bold" data-target="250" id="partner_vendors_counter">0</h3>
+                    <h3 class="display-5 fw-bold" data-target="25" id="partner_vendors_counter">0</h3>
                     <p class="lead">Partner Vendors</p>
                 </div>
             </div>

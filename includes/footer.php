@@ -86,15 +86,33 @@
     }
 </style>
 
+
+<?php
+// Ensure API key is available
+if (!defined('CHATBOT_API_KEY')) {
+    // Try to load it if not defined (path depends on where footer is included from)
+    // Assuming standard structure pages/ -> ../config/
+    if (file_exists(__DIR__ . '/../config/api-keys.php')) {
+        include_once __DIR__ . '/../config/api-keys.php';
+    } elseif (file_exists(__DIR__ . '/../../config/api-keys.php')) {
+        // Fallback if included from deeper level
+        include_once __DIR__ . '/../../config/api-keys.php';
+    }
+}
+$chatbotApiKey = defined('CHATBOT_API_KEY') ? CHATBOT_API_KEY : '';
+?>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const chatMessages = document.getElementById('chat-messages');
         const chatInput = document.getElementById('chat-input');
         const sendChatBtn = document.getElementById('send-chat-btn');
         const chatModal = document.getElementById('chatbotModal');
-
-        // Path to backend processor
-        const chatApiUrl = '../api/chat-handler.php';
+        
+        // OPENROUTER API CONFIG
+        // EXPOSED API KEY (Browser-side)
+        const OPENROUTER_API_KEY = "<?php echo $chatbotApiKey; ?>";
+        const WORK_ONSITE = false; // Set to true to fallback to local PHP if needed, but we are fixing 429 via direct
 
         // Function to append message to the chat window
         function appendMessage(sender, text, isError = false) {
@@ -110,7 +128,10 @@
                 msgDiv.style.backgroundColor = isError ? '#dc3545' : '#00a650';
             }
 
-            msgDiv.innerHTML = `<strong>${sender === 'user' ? 'You' : 'MakanMystery Bot'}</strong>: ${text}`;
+            // Simple markdown-like Bold parsing
+            let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            msgDiv.innerHTML = `<strong>${sender === 'user' ? 'You' : 'MakanMystery Bot'}</strong>: ${formattedText}`;
             chatMessages.appendChild(msgDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -119,6 +140,11 @@
         async function sendMessage() {
             const message = chatInput.value.trim();
             if (!message) return;
+
+            if (!OPENROUTER_API_KEY) {
+                appendMessage('bot', 'System Error: API Key missing in configuration.', true);
+                return;
+            }
 
             appendMessage('user', message);
             chatInput.value = '';
@@ -133,41 +159,49 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             try {
-                const response = await fetch(chatApiUrl, {
-                    method: 'POST',
+                // Direct Call to OpenRouter
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+                        "Content-Type": "application/json"
                     },
-                    body: `message=${encodeURIComponent(message)}`
+                    body: JSON.stringify({
+                        "model": "meta-llama/llama-3.2-3b-instruct:free",
+                        "messages": [
+                          {
+                            "role": "system",
+                            "content": "You are MakanMystery Web Support, a helpful assistant specialized in answering questions about surplus food, local pickup procedures, vendors, and marketplace rules in Malaysia. Keep answers brief and focused on food rescue."
+                          },
+                          {
+                            "role": "user",
+                            "content": message
+                          }
+                        ],
+                        "max_tokens": 400,
+                        "temperature": 0.7
+                    })
                 });
 
                 loadingDiv.remove();
 
                 if (!response.ok) {
-                    try {
-                        const data = await response.json();
-                        if (data.reply) {
-                            appendMessage('bot', data.reply, true);
-                        } else {
-                            appendMessage('bot', 'Server Error (' + response.status + '). Please try again later.', true);
-                        }
-                    } catch (e) {
-                        appendMessage('bot', 'Sorry, I lost connection to the server. (Status ' + response.status + ')', true);
-                    }
+                    const errData = await response.json().catch(() => ({}));
+                    console.error("API Error:", errData);
+                    const errMsg = errData.error && errData.error.message ? errData.error.message : response.statusText;
+                    appendMessage('bot', `API Error (${response.status}): ${errMsg}`, true);
                     return;
                 }
 
                 const data = await response.json();
-
-                if (data.reply) {
-                    appendMessage('bot', data.reply);
-                } else {
-                    appendMessage('bot', data.error || 'System error. Please check the API key.', true);
-                }
+                const reply = data.choices[0].message.content || "Sorry, I couldn't understand that.";
+                
+                appendMessage('bot', reply);
 
             } catch (error) {
                 loadingDiv.remove();
-                appendMessage('bot', 'Network error occurred.', true);
+                console.error("Network Error:", error);
+                appendMessage('bot', 'Network error occurred. Please check your connection.', true);
             } finally {
                 sendChatBtn.disabled = false;
             }
