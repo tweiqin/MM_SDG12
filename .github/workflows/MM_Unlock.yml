@@ -1,4 +1,4 @@
-name: 401 - Terraform Unlock State
+name: MM - Terraform Unlock State
 
 on:
   workflow_dispatch:

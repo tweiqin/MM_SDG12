@@ -90,22 +90,22 @@ jobs:
         # BUT we need to inject GH Secrets. So we use specific interpolation.
         
         CMD_SCRIPT="
-        set -e
-        echo 'Installing dependencies...'
-        sudo apt-get update -y
-        sudo apt-get install -y mysql-client awscli
+        set -e;
+        echo 'Installing dependencies...';
+        sudo apt-get update -y;
+        sudo apt-get install -y mysql-client awscli;
         
-        echo 'Downloading schema.sql from s3://$BUCKET_NAME/db/schema.sql...'
-        aws s3 cp s3://$BUCKET_NAME/db/schema.sql /tmp/migration.sql
+        echo 'Downloading schema.sql from s3://$BUCKET_NAME/db/schema.sql...';
+        aws s3 cp s3://$BUCKET_NAME/db/schema.sql /tmp/migration.sql;
         
-        echo 'Resetting Database...'
-        mysql -h $DB_HOST_CLEAN -u $DB_USER -p'$DB_PASS' -e 'DROP DATABASE IF EXISTS $DB_NAME; CREATE DATABASE $DB_NAME;'
+        echo 'Resetting Database...';
+        mysql -h $DB_HOST_CLEAN -u $DB_USER -p'$DB_PASS' -e 'DROP DATABASE IF EXISTS $DB_NAME; CREATE DATABASE $DB_NAME;';
         
-        echo 'Importing SQL...'
-        mysql -h $DB_HOST_CLEAN -u $DB_USER -p'$DB_PASS' $DB_NAME < /tmp/migration.sql
+        echo 'Importing SQL...';
+        mysql -h $DB_HOST_CLEAN -u $DB_USER -p'$DB_PASS' $DB_NAME < /tmp/migration.sql;
         
-        rm /tmp/migration.sql
-        echo 'Migration Success.'
+        rm /tmp/migration.sql;
+        echo 'Migration Success.';
         "
         
         # Sanitize for JSON
