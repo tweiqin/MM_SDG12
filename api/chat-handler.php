@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
 
     // 1. Payload Construction
     $data = [
-        "model" => "google/gemma-3-4b-it:free",
+        "model" => "google/gemini-2.0-flash-exp:free",
         "messages" => [
             [
                 "role" => "system",
@@ -65,6 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
 
         $decoded_response = json_decode($response, true);
         $error_details = $decoded_response['error']['message'] ?? "Unknown API Error.";
+
+        // Log full response for debugging
+        error_log("OPENROUTER API ERROR: " . print_r($response, true));
 
         http_response_code(500);
         $reply = "API Error (Code {$http_code}). Check Key/Restrictions. Details: {$error_details}";
