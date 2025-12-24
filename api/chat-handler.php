@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
 
     // 1. Payload Construction
     $data = [
-        "model" => "google/gemini-2.0-flash-exp:free",
+        "model" => "google/gemini-2.0-flash-lite-preview-02-05:free",
         "messages" => [
             [
                 "role" => "system",
