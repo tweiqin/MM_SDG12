@@ -1,4 +1,4 @@
-name: MM - Destroy Infrastructure
+name: 5MM - Destroy Infrastructure
 
 on:
   workflow_dispatch:

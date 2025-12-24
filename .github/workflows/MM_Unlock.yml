@@ -1,4 +1,4 @@
-name: MM - Terraform Unlock State
+name: 3MM - Terraform Unlock State
 
 on:
   workflow_dispatch:
