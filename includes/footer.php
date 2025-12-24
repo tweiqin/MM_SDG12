@@ -108,7 +108,7 @@ $chatbotApiKey = defined('CHATBOT_API_KEY') ? CHATBOT_API_KEY : '';
         const chatInput = document.getElementById('chat-input');
         const sendChatBtn = document.getElementById('send-chat-btn');
         const chatModal = document.getElementById('chatbotModal');
-        
+
         // OPENROUTER API CONFIG
         // EXPOSED API KEY (Browser-side)
         const OPENROUTER_API_KEY = "<?php echo $chatbotApiKey; ?>";
@@ -130,7 +130,7 @@ $chatbotApiKey = defined('CHATBOT_API_KEY') ? CHATBOT_API_KEY : '';
 
             // Simple markdown-like Bold parsing
             let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
+
             msgDiv.innerHTML = `<strong>${sender === 'user' ? 'You' : 'MakanMystery Bot'}</strong>: ${formattedText}`;
             chatMessages.appendChild(msgDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -167,16 +167,16 @@ $chatbotApiKey = defined('CHATBOT_API_KEY') ? CHATBOT_API_KEY : '';
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        "model": "meta-llama/llama-3.2-3b-instruct:free",
+                        "model": "google/gemini-2.0-flash-exp:free",
                         "messages": [
-                          {
-                            "role": "system",
-                            "content": "You are MakanMystery Web Support, a helpful assistant specialized in answering questions about surplus food, local pickup procedures, vendors, and marketplace rules in Malaysia. Keep answers brief and focused on food rescue."
-                          },
-                          {
-                            "role": "user",
-                            "content": message
-                          }
+                            {
+                                "role": "system",
+                                "content": "You are MakanMystery Web Support, a helpful assistant specialized in answering questions about surplus food, local pickup procedures, vendors, and marketplace rules in Malaysia. Keep answers brief and focused on food rescue."
+                            },
+                            {
+                                "role": "user",
+                                "content": message
+                            }
                         ],
                         "max_tokens": 400,
                         "temperature": 0.7
@@ -195,7 +195,7 @@ $chatbotApiKey = defined('CHATBOT_API_KEY') ? CHATBOT_API_KEY : '';
 
                 const data = await response.json();
                 const reply = data.choices[0].message.content || "Sorry, I couldn't understand that.";
-                
+
                 appendMessage('bot', reply);
 
             } catch (error) {
