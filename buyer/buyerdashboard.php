@@ -1,5 +1,5 @@
 <?php
-include '../includes/buyerheader.php';
+session_start();
 require_once '../config/db.php';
 
 
@@ -7,6 +7,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'buyer') {
     header('Location: ../pages/login.php');
     exit;
 }
+
+include '../includes/buyerheader.php';
+
 $user_id = $_SESSION['user_id'];
 
 $query = "SELECT * FROM users WHERE user_id = ?";
