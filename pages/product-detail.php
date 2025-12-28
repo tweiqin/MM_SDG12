@@ -62,7 +62,13 @@ $reviews = $reviews_stmt->get_result();
 $quantity_left = (int) $product['quantity'];
 ?>
 
-<?php include('../includes/header.php'); ?>
+<?php
+if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'buyer') {
+    include('../includes/buyerheader.php');
+} else {
+    include('../includes/header.php');
+}
+?>
 
 <div class="container my-5">
     <div class="row">

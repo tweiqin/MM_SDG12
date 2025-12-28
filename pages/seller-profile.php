@@ -1,7 +1,11 @@
 <?php
 session_start();
 require_once '../config/db.php';
-include('../includes/header.php');
+if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'buyer') {
+    include('../includes/buyerheader.php');
+} else {
+    include('../includes/header.php');
+}
 
 // Check for seller ID in the URL
 if (!isset($_GET['seller_id']) || !is_numeric($_GET['seller_id'])) {

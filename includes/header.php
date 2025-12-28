@@ -43,9 +43,8 @@ include('../config/db.php');
                     <li class="nav-item">
                         <a class="nav-link " href="../buyer/buyerdashboard.php">Account</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link " href="../seller/dashboard.php">Start Selling</a>
                     </li>
+
                     <li class="nav-item">
                         <a class="btn btn-warning text-dark" href="login.php">Login</a>
                     </li>

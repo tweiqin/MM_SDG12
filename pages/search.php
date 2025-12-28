@@ -1,5 +1,10 @@
 <?php
-include('../includes/header.php');
+session_start();
+if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'buyer') {
+    include('../includes/buyerheader.php');
+} else {
+    include('../includes/header.php');
+}
 require_once '../config/db.php';
 
 // Helper function for dynamic bind_param

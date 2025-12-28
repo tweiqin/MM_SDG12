@@ -41,7 +41,13 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 ?>
-<?php include('../includes/buyerheader.php'); ?>
+<?php
+if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'buyer') {
+    include('../includes/buyerheader.php');
+} else {
+    include('../includes/header.php');
+}
+?>
 
 <div class="container my-5">
     <h1 class="text-center mb-4">Checkout</h1>
@@ -216,12 +222,12 @@ if (isset($_SESSION['user_id'])) {
             } else if (paymentSelect.value === 'grab_pay') {
                 event.preventDefault();
                 if (confirm("Redirecting to GrabPay Secure Gateway...\n\nClick OK to Authorize Payment.\nClick Cancel to simulate failed authorization.")) {
-                     // Simulate processing delay
-                     submitButton.disabled = true;
-                     submitButton.innerText = 'Authorizing...';
-                     setTimeout(() => { form.submit(); }, 1000);
+                    // Simulate processing delay
+                    submitButton.disabled = true;
+                    submitButton.innerText = 'Authorizing...';
+                    setTimeout(() => { form.submit(); }, 1000);
                 } else {
-                     alert("Payment Authorization Failed. Please try again.");
+                    alert("Payment Authorization Failed. Please try again.");
                 }
             } else if (paymentSelect.value === 'fpx_online_banking') {
                 event.preventDefault();
