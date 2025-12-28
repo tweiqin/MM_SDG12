@@ -1,7 +1,15 @@
 <?php
 session_start();
-if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'buyer') {
-    include('../includes/buyerheader.php');
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] === 'buyer') {
+        include('../includes/buyerheader.php');
+    } elseif ($_SESSION['role'] === 'seller') {
+        include('../includes/sellerheader.php');
+    } elseif ($_SESSION['role'] === 'admin') {
+        include('../includes/adminheader.php');
+    } else {
+        include('../includes/header.php');
+    }
 } else {
     include('../includes/header.php');
 }
