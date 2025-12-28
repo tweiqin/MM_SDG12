@@ -1,20 +1,18 @@
 <?php
 header('Content-Type: application/json');
-
-$host = '127.0.0.1';
-$dbname = 'mm_sdg12';
-$username = 'root';
-$password = '';
+require_once '../config/db.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Check connection
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
 
     // Get sales for current month + last 3 months
     $currentYearMonth = date('Y-m');
 
     // Get sales for current month (partial)
-    $currentMonthStmt = $pdo->prepare("
+    $currentMonthStmt = $conn->prepare("
         SELECT 
             SUM(total_price) as monthly_sales,
             COUNT(*) as order_count
@@ -22,11 +20,14 @@ try {
         WHERE order_status = 'collected'
           AND DATE_FORMAT(created_at, '%Y-%m') = ?
     ");
-    $currentMonthStmt->execute([$currentYearMonth]);
-    $currentMonth = $currentMonthStmt->fetch(PDO::FETCH_ASSOC);
+    $currentMonthStmt->bind_param("s", $currentYearMonth);
+    $currentMonthStmt->execute();
+    $result = $currentMonthStmt->get_result();
+    $currentMonth = $result->fetch_assoc();
 
     // Get sales for previous 3 months
-    $stmt = $pdo->query("
+    // Note: DATE_FORMAT in WHERE clause can be string compared safely here
+    $stmt = $conn->prepare("
         SELECT 
             DATE_FORMAT(created_at, '%Y-%m') as month_sort,
             DATE_FORMAT(created_at, '%b %Y') as month_display,
@@ -34,13 +35,19 @@ try {
             COUNT(*) as order_count
         FROM orders 
         WHERE order_status = 'collected'
-          AND DATE_FORMAT(created_at, '%Y-%m') < '$currentYearMonth'
+          AND DATE_FORMAT(created_at, '%Y-%m') < ?
         GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%b %Y')
         ORDER BY month_sort DESC
         LIMIT 3
     ");
+    $stmt->bind_param("s", $currentYearMonth);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    $previousMonths = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $previousMonths = [];
+    while ($row = $result->fetch_assoc()) {
+        $previousMonths[] = $row;
+    }
     $previousMonths = array_reverse($previousMonths); // Oldest first
 
     // Build complete 4-month array
@@ -78,7 +85,7 @@ try {
         'note' => 'Includes current month data'
     ]);
 
-} catch (PDOException $e) {
+} catch (Exception $e) {
     echo json_encode(['error' => $e->getMessage()]);
 }
 ?>

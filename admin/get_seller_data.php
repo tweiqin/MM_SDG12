@@ -1,17 +1,14 @@
 <?php
 header('Content-Type: application/json');
-
-$host = '127.0.0.1';
-$dbname = 'mm_sdg12';
-$username = 'root';
-$password = '';
+require_once '../config/db.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
+
     // Get top 5 sellers by sales
-    $stmt = $pdo->query("
+    $stmt = $conn->prepare("
         SELECT 
             u.name as seller_name,
             COALESCE(SUM(o.total_price), 0) as total_sales
@@ -24,23 +21,23 @@ try {
         ORDER BY total_sales DESC
         LIMIT 5
     ");
-    
-    $sellersData = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+    $stmt->execute();
+    $result = $stmt->get_result();
+
     $sellers = [];
     $sales = [];
-    
-    foreach ($sellersData as $row) {
+
+    while ($row = $result->fetch_assoc()) {
         $sellers[] = $row['seller_name'];
-        $sales[] = (float)$row['total_sales'];
+        $sales[] = (float) $row['total_sales'];
     }
-    
+
     echo json_encode([
         'sellers' => $sellers,
         'sales' => $sales
     ]);
-    
-} catch(PDOException $e) {
+
+} catch (Exception $e) {
     echo json_encode(['error' => $e->getMessage()]);
 }
 ?>

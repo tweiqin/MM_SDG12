@@ -1,17 +1,14 @@
 <?php
 header('Content-Type: application/json');
-
-$host = '127.0.0.1';
-$dbname = 'mm_sdg12';
-$username = 'root';
-$password = '';
+require_once '../config/db.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
+
     // Get rating distribution
-    $stmt = $pdo->query("
+    $stmt = $conn->prepare("
         SELECT 
             rating,
             COUNT(*) as count
@@ -19,19 +16,22 @@ try {
         GROUP BY rating
         ORDER BY rating
     ");
-    
-    $ratingsData = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+    $stmt->execute();
+    $result = $stmt->get_result();
+
     // Create array for ratings 1-5
     $ratings = [0, 0, 0, 0, 0];
-    
-    foreach ($ratingsData as $row) {
-        $ratings[$row['rating'] - 1] = (int)$row['count'];
+
+    while ($row = $result->fetch_assoc()) {
+        $ratingIndex = (int) $row['rating'] - 1;
+        if (isset($ratings[$ratingIndex])) {
+            $ratings[$ratingIndex] = (int) $row['count'];
+        }
     }
-    
+
     echo json_encode(['ratings' => $ratings]);
-    
-} catch(PDOException $e) {
+
+} catch (Exception $e) {
     echo json_encode(['error' => $e->getMessage()]);
 }
 ?>

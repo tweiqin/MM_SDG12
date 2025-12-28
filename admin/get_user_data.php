@@ -1,18 +1,14 @@
 <?php
 header('Content-Type: application/json');
-
-$host = '127.0.0.1';
-$dbname = 'mm_sdg12';
-$username = 'root';
-$password = '';
+require_once '../config/db.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
 
     // Get ALL user registrations for the last 4 months (including all active users)
-    // This shows users who registered, regardless of their activity
-    $stmt = $pdo->query("
+    $stmt = $conn->prepare("
         SELECT 
             DATE_FORMAT(created_at, '%b %Y') as month_display,
             DATE_FORMAT(created_at, '%Y-%m') as month_sort,
@@ -26,8 +22,13 @@ try {
         GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%b %Y')
         ORDER BY month_sort
     ");
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    $userData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $userData = [];
+    while ($row = $result->fetch_assoc()) {
+        $userData[] = $row;
+    }
 
     // If have less than 4 months of data, fill in empty months
     $allMonths = [];
@@ -69,7 +70,7 @@ try {
         'total' => $totalData
     ]);
 
-} catch (PDOException $e) {
+} catch (Exception $e) {
     echo json_encode(['error' => $e->getMessage()]);
 }
 ?>
