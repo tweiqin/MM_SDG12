@@ -41,7 +41,7 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 ?>
-<?php include('../includes/header.php'); ?>
+<?php include('../includes/buyerheader.php'); ?>
 
 <div class="container my-5">
     <h1 class="text-center mb-4">Checkout</h1>

@@ -60,7 +60,7 @@ if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
 }
 ?>
 
-<?php include('../includes/header.php'); ?>
+<?php include('../includes/buyerheader.php'); ?>
 
 <div class="container my-5">
     <h2 class="text-center mb-4">Your Shopping Cart</h2>
