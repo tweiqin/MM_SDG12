@@ -1,11 +1,14 @@
 <?php
-include('../includes/sellerheader.php');
+session_start();
 require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'seller') {
     header('Location: ../pages/login.php');
     exit();
 }
+
+include('../includes/sellerheader.php');
+
 
 $user_id = $_SESSION['user_id'];
 
@@ -51,9 +54,9 @@ $co2_saved = number_format($total_meals_saved * 1.75, 2);
 
 <div class="container my-5">
     <h1 class="text-center mb-4">Vendor Dashboard</h1>
-    
+
     <div class="row g-4 mb-5">
-        
+
         <div class="col-md-3">
             <div class="card text-center shadow-sm" style="height: 100%; border-radius: 12px;">
                 <div class="card-body">
@@ -101,7 +104,7 @@ $co2_saved = number_format($total_meals_saved * 1.75, 2);
     <div class="container mb-5">
         <h2 class="text-center mb-4">Orders Received</h2>
         <div class="table-responsive">
-             <table class="table table-bordered table-hover align-middle">
+            <table class="table table-bordered table-hover align-middle">
                 <thead class="table-dark">
                     <tr>
                         <th scope="col">Order ID</th>

@@ -1,11 +1,14 @@
 <?php
-include('../includes/sellerheader.php');
+session_start();
 include('../config/db.php');
 
-if ($_SESSION['role'] != 'seller') {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'seller') {
     header('Location: ../index.php');
     exit();
 }
+
+include('../includes/sellerheader.php');
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['name'];

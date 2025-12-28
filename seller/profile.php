@@ -1,12 +1,15 @@
 <?php
+session_start();
 include('../config/db.php');
-include('../includes/sellerheader.php');
 
 // Redirect to login page if not logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
     exit();
 }
+
+include('../includes/sellerheader.php');
+
 
 $message = ""; // Initialize the message variable
 $user_id = $_SESSION['user_id'];

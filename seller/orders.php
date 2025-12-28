@@ -1,12 +1,14 @@
 <?php
-
-include('../includes/sellerheader.php');
+session_start();
 require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'seller') {
     header('Location: ../pages/login.php');
     exit;
 }
+
+include('../includes/sellerheader.php');
+
 
 $user_id = $_SESSION['user_id'];
 

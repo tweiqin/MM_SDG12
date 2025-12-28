@@ -1,11 +1,14 @@
 <?php
-include('../includes/sellerheader.php');
+session_start();
 include('../config/db.php');
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'seller') {
     header("Location: ../login.php");
     exit();
 }
+
+include('../includes/sellerheader.php');
+
 
 $seller_id = $_SESSION['user_id'];
 $sql = "SELECT *, product_status FROM products WHERE seller_id = ?";
