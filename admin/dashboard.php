@@ -228,7 +228,7 @@ if ($result_pending) {
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <a href="settings.php" class="text-decoration-none">
+                    <a href="#" class="text-decoration-none">
                         <div class="card h-100 border-secondary border-1 hover-shadow">
                             <div class="card-body d-flex align-items-center p-4">
                                 <div class="flex-shrink-0 me-4">
@@ -247,7 +247,7 @@ if ($result_pending) {
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <a href="orders.php" class="text-decoration-none">
+                    <a href="#" class="text-decoration-none">
                         <div class="card h-100 border-info border-1 hover-shadow">
                             <div class="card-body d-flex align-items-center p-4">
                                 <div class="flex-shrink-0 me-4">
