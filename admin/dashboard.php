@@ -1,11 +1,14 @@
 <?php
-include('../includes/adminheader.php');
-require_once '../config/db.php';
+session_start();
 
 if (!isset($_SESSION['admin_id'])) {
     header("Location: adminlogin.php");
     exit;
 }
+
+include('../includes/adminheader.php');
+require_once '../config/db.php';
+
 
 // Initialize variables
 $totalUsers = 0;

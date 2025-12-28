@@ -39,6 +39,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         header("Location: ../admin/dashboard.php");
                     } elseif ($user['role'] == 'seller') {
                         header("Location: ../seller/dashboard.php");
+                    } elseif ($user['role'] == 'buyer') {
+                        header("Location: ../buyer/buyerdashboard.php");
                     } else {
                         header("Location: index.php");
                     }
