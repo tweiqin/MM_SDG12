@@ -1,5 +1,5 @@
 <?php
-include('../includes/adminheader.php');
+session_start();
 require_once '../config/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -24,7 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Invalid email or password.";
     }
 }
+include('../includes/adminheader.php');
 ?>
+
 
 <div class="container mt-5 mb-5">
     <div class="login-container">
