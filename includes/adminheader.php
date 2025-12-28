@@ -63,7 +63,7 @@ include('../config/db.php'); ?>
 <body>
     <header class="bg-dark">
         <nav class="navbar navbar-expand-lg navbar-dark container sticky-top">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="../pages/index.php">
                 <img src="../assets/images/logo3.png" alt="Makan Mystery" class="logo">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
