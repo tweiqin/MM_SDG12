@@ -64,7 +64,7 @@ jobs:
             -var="db_password=${{ secrets.DB_PASSWORD }}" \
             -var="app_version=${{ github.sha }}" \
             -var="docker_image=${{ secrets.DOCKERHUB_USERNAME }}/makanmystery:latest" \
-            -var="chatbot_api_key=${{ secrets.CHATBOT_API_KEY }}"
+            -var="chatbot_api_key=${{ secrets.GEMINI_API_KEY }}"
 
       - name: Terraform Apply
         run: |
@@ -73,4 +73,4 @@ jobs:
             -var="db_password=${{ secrets.DB_PASSWORD }}" \
             -var="app_version=${{ github.sha }}" \
             -var="docker_image=${{ secrets.DOCKERHUB_USERNAME }}/makanmystery:latest" \
-            -var="chatbot_api_key=${{ secrets.CHATBOT_API_KEY }}"
+            -var="chatbot_api_key=${{ secrets.GEMINI_API_KEY }}"
