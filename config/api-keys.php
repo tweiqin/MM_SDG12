@@ -1,8 +1,8 @@
 <?php
 
 // Google Gemini API Endpoint
-// Using gemini-1.5-flash-001 which is the stable version
-define('CHATBOT_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-001:generateContent');
+// Using gemini-2.0-flash as confirmed by available models list
+define('CHATBOT_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent');
 
 // Load environment variables
 require_once __DIR__ . '/env_loader.php';
