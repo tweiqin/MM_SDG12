@@ -7,26 +7,27 @@ header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
     $user_message = trim($_POST['message']);
 
-    // 1. Payload Construction
+    // 1. Payload Construction (Gemini Format)
     $data = [
-        "model" => "meta-llama/llama-3.2-3b-instruct:free",
-        "messages" => [
+        "contents" => [
             [
-                "role" => "system",
-                "content" => "You are MakanMystery Web Support, a helpful assistant specialized in answering questions about surplus food, local pickup procedures, vendors, and marketplace rules in Malaysia. Keep answers brief and focused on food rescue."
-            ],
-            [
-                "role" => "user",
-                "content" => $user_message
+                "parts" => [
+                    [
+                        "text" => "System Instruction: You are MakanMystery Web Support, a helpful assistant specialized in answering questions about surplus food, local pickup procedures, vendors, and marketplace rules in Malaysia. Keep answers brief and focused on food rescue.\n\nUser Question: " . $user_message
+                    ]
+                ]
             ]
         ],
-        "stream" => false,
-        "max_tokens" => 400,
-        "temperature" => 0.7
+        "generationConfig" => [
+            "maxOutputTokens" => 400,
+            "temperature" => 0.7
+        ]
     ];
 
     // 2. Initialize cURL request
-    $ch = curl_init(CHATBOT_ENDPOINT);
+    // Gemini requires the API key in the URL
+    $url = CHATBOT_ENDPOINT . '?key=' . GEMINI_API_KEY;
+    $ch = curl_init($url);
 
     // 3. Set cURL options
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
@@ -35,8 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . CHATBOT_API_KEY
+        'Content-Type: application/json'
     ]);
 
     // 4. EXECUTE THE REQUEST & COLLECT ERRORS
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
         $error_details = $decoded_response['error']['message'] ?? "Unknown API Error.";
 
         // Log full response for debugging
-        error_log("OPENROUTER API ERROR: " . print_r($response, true));
+        error_log("GEMINI API ERROR: " . print_r($response, true));
 
         http_response_code(500);
         $reply = "API Error (Code {$http_code}). Check Key/Restrictions. Details: {$error_details}";
@@ -78,7 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
     // 5. Process and return response
     $decoded_response = json_decode($response, true);
 
-    $reply_text = $decoded_response['choices'][0]['message']['content'] ?? "Sorry, I couldn't find a response.";
+    // Gemini Response Structure: candidates[0].content.parts[0].text
+    $reply_text = $decoded_response['candidates'][0]['content']['parts'][0]['text'] ?? "Sorry, I couldn't find a response.";
 
     // 6. Return answer as JSON
     echo json_encode(['reply' => $reply_text]);

@@ -1,17 +1,16 @@
 <?php
 
-// OpenRouter's Unified endpoint
-define('CHATBOT_ENDPOINT', 'https://openrouter.ai/api/v1/chat/completions');
+// Google Gemini API Endpoint (Gemini 1.5 Flash)
+define('CHATBOT_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent');
 
 // Load environment variables
 require_once __DIR__ . '/env_loader.php';
 loadEnv(__DIR__ . '/../.env');
 
-// Store OpenRouter API Key
-$apiKey = getenv('CHATBOT_API_KEY');
+// Store Gemini API Key
+$apiKey = getenv('GEMINI_API_KEY');
 if (!$apiKey) {
-
-    error_log("CHATBOT_API_KEY not found in .env file");
+    error_log("GEMINI_API_KEY not found in .env file");
 }
-define('CHATBOT_API_KEY', $apiKey);
+define('GEMINI_API_KEY', $apiKey);
 ?>
