@@ -163,7 +163,11 @@ $chatbotAvailable = defined('GEMINI_API_KEY') && !empty(GEMINI_API_KEY);
             try {
                 // Call Local Proxy Script (Secure)
                 // Determine path based on current location
-                const apiPath = window.location.pathname.includes('/pages/') ? '../api/chat-handler.php' : 'api/chat-handler.php';
+                // Handles: root (index.php), pages/, admin/, seller/, buyer/
+                let apiPath = 'api/chat-handler.php'; // Default for root
+                if (window.location.pathname.match(/\/(pages|admin|seller|buyer)\//)) {
+                    apiPath = '../api/chat-handler.php';
+                }
 
                 const formData = new FormData();
                 formData.append('message', message);
