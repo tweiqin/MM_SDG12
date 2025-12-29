@@ -27,6 +27,12 @@ resource "aws_lb_target_group" "main" {
     matcher             = "200-499" # Accept 404s, 301s, etc. as "Healthy" (app is running)
   }
 
+  stickiness {
+    type            = "lb_cookie"
+    cookie_duration = 86400
+    enabled         = true
+  }
+
   lifecycle {
     create_before_destroy = true
   }
