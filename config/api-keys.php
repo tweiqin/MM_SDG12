@@ -1,8 +1,8 @@
 <?php
 
 // Google Gemini API Endpoint
-// Using gemini-2.0-flash as confirmed by available models list
-define('CHATBOT_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent');
+// Switching to 'gemini-2.0-flash-exp' which typically has free tier quota available
+define('CHATBOT_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent');
 
 // Load environment variables
 require_once __DIR__ . '/env_loader.php';
