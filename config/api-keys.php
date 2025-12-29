@@ -1,7 +1,8 @@
 <?php
 
-// Google Gemini API Endpoint (Gemini 1.5 Flash)
-define('CHATBOT_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent');
+// Google Gemini API Endpoint
+// Using gemini-1.5-flash-001 which is the stable version
+define('CHATBOT_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-001:generateContent');
 
 // Load environment variables
 require_once __DIR__ . '/env_loader.php';
