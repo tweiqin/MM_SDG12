@@ -89,7 +89,8 @@
 
 <?php
 // Ensure API key is available
-if (!defined('CHATBOT_API_KEY')) {
+// Ensure API key is available
+if (!defined('GEMINI_API_KEY')) {
     // Try to load it if not defined (path depends on where footer is included from)
     // Assuming standard structure pages/ -> ../config/
     if (file_exists(__DIR__ . '/../config/api-keys.php')) {
@@ -99,7 +100,9 @@ if (!defined('CHATBOT_API_KEY')) {
         include_once __DIR__ . '/../../config/api-keys.php';
     }
 }
-$chatbotApiKey = defined('CHATBOT_API_KEY') ? CHATBOT_API_KEY : '';
+// We do NOT echo the key to the frontend anymore for security.
+// The proxy script handles the key. Use a flag to indicate availability if needed.
+$chatbotAvailable = defined('GEMINI_API_KEY') && !empty(GEMINI_API_KEY);
 ?>
 
 <script>
@@ -110,9 +113,8 @@ $chatbotApiKey = defined('CHATBOT_API_KEY') ? CHATBOT_API_KEY : '';
         const chatModal = document.getElementById('chatbotModal');
 
         // OPENROUTER API CONFIG
-        // EXPOSED API KEY (Browser-side)
-        const OPENROUTER_API_KEY = "<?php echo $chatbotApiKey; ?>";
-        const WORK_ONSITE = false; // Set to true to fallback to local PHP if needed, but we are fixing 429 via direct
+        // API Key is now handled securely on the server side (api/chat-handler.php)
+        const CHATBOT_AVAILABLE = <?php echo $chatbotAvailable ? 'true' : 'false'; ?>;
 
         // Function to append message to the chat window
         function appendMessage(sender, text, isError = false) {
@@ -141,8 +143,8 @@ $chatbotApiKey = defined('CHATBOT_API_KEY') ? CHATBOT_API_KEY : '';
             const message = chatInput.value.trim();
             if (!message) return;
 
-            if (!OPENROUTER_API_KEY) {
-                appendMessage('bot', 'System Error: API Key missing in configuration.', true);
+            if (!CHATBOT_AVAILABLE) {
+                appendMessage('bot', 'System Error: API Key missing in server configuration.', true);
                 return;
             }
 
@@ -159,28 +161,16 @@ $chatbotApiKey = defined('CHATBOT_API_KEY') ? CHATBOT_API_KEY : '';
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             try {
-                // Direct Call to OpenRouter
-                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                // Call Local Proxy Script (Secure)
+                // Determine path based on current location
+                const apiPath = window.location.pathname.includes('/pages/') ? '../api/chat-handler.php' : 'api/chat-handler.php';
+
+                const formData = new FormData();
+                formData.append('message', message);
+
+                const response = await fetch(apiPath, {
                     method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        "model": "google/gemini-2.0-flash-exp:free",
-                        "messages": [
-                            {
-                                "role": "system",
-                                "content": "You are MakanMystery Web Support, a helpful assistant specialized in answering questions about surplus food, local pickup procedures, vendors, and marketplace rules in Malaysia. Keep answers brief and focused on food rescue."
-                            },
-                            {
-                                "role": "user",
-                                "content": message
-                            }
-                        ],
-                        "max_tokens": 400,
-                        "temperature": 0.7
-                    })
+                    body: formData
                 });
 
                 loadingDiv.remove();
@@ -188,13 +178,13 @@ $chatbotApiKey = defined('CHATBOT_API_KEY') ? CHATBOT_API_KEY : '';
                 if (!response.ok) {
                     const errData = await response.json().catch(() => ({}));
                     console.error("API Error:", errData);
-                    const errMsg = errData.error && errData.error.message ? errData.error.message : response.statusText;
-                    appendMessage('bot', `API Error (${response.status}): ${errMsg}`, true);
+                    const errMsg = errData.reply ? errData.reply : (errData.error || response.statusText);
+                    appendMessage('bot', `Error: ${errMsg}`, true);
                     return;
                 }
 
                 const data = await response.json();
-                const reply = data.choices[0].message.content || "Sorry, I couldn't understand that.";
+                const reply = data.reply || "Sorry, I couldn't understand that.";
 
                 appendMessage('bot', reply);
 
