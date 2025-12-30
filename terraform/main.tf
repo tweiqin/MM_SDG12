@@ -17,6 +17,20 @@ provider "aws" {
   region = var.region
 }
 
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
+# WAF
+module "waf" {
+  source       = "./modules/waf"
+  project_name = var.project_name
+  providers = {
+    aws.waf_region = aws.us_east_1
+  }
+}
+
 # Virtual Private Cloud
 module "vpc" {
   source       = "./modules/vpc"
@@ -100,6 +114,14 @@ module "public_alb" {
   security_group_id = module.security.alb_sg_id
 
   name_prefix = "public-alb"
+}
+
+# CloudFront Distribution (CDN)
+module "cloudfront" {
+  source       = "./modules/cloudfront"
+  project_name = var.project_name
+  alb_dns_name = module.public_alb.alb_dns_name
+  web_acl_arn  = module.waf.web_acl_arn
 }
 
 # S3 Storage (Static Assets)
