@@ -18,3 +18,8 @@ output "db_password_secret_name" {
   value = module.secrets.secret_name
 }
 
+
+output "cloudfront_domain_name" {
+  description = "The Secure HTTPS URL for the website"
+  value       = module.cloudfront.cloudfront_domain_name
+}
