@@ -53,21 +53,22 @@ if (isset($_SESSION['user_id'])) {
                 <div class="category-card">
                     <img src="../assets/images/hotel.jpg" alt="Hotels">
                     <h5>Hotels</h5>
-                    <a href="search.php?category=hotels" class="btn btn-outline-warning">Save Food</a>
+                    <a href="search.php?category=Hotels" class="btn btn-outline-warning">Save Food</a>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="category-card">
                     <img src="../assets/images/cafes.jpg" alt="Restaurants & Cafes">
                     <h5>Restaurants & Cafes</h5>
-                    <a href="search.php?category=restaurants & cafes" class="btn btn-outline-warning">Save Money</a>
+                    <a href="search.php?category=Restaurants%20%26%20Cafes" class="btn btn-outline-warning">Save
+                        Money</a>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="category-card">
                     <img src="../assets/images/bakery.jpg" alt="Bakeries">
                     <h5>Bakeries</h5>
-                    <a href="search.php?category=bakeries" class="btn btn-outline-warning">Save Planet</a>
+                    <a href="search.php?category=Bakeries" class="btn btn-outline-warning">Save Planet</a>
                 </div>
             </div>
         </div>

@@ -23,6 +23,9 @@ $ref_values = function ($arr) {
     return $refs;
 };
 
+// Hardcoded categories (Standardized)
+$categories = ['Hotels', 'Restaurants & Cafes', 'Bakeries'];
+
 function renderProductCard($product)
 {
     // Retrieve stock level
@@ -89,6 +92,7 @@ function renderProductCard($product)
 // Search query handling
 $searchResults = null;
 $searchQuery = $_GET['query'] ?? null;
+$selectedCategory = $_GET['category'] ?? null;
 $user_lat = $_GET['user_lat'] ?? null;
 $user_lng = $_GET['user_lng'] ?? null;
 $limit = 100;
@@ -115,9 +119,30 @@ if ($user_lat && $user_lng) {
         ORDER BY distance ASC
         LIMIT ?";
 
+    // Modify query if category is selected
+    if ($selectedCategory) {
+        $query = "
+        SELECT 
+            p.product_id, p.name, p.price, p.original_price, p.image, p.quantity,
+            u.user_id AS seller_id, u.name AS seller_name, u.latitude, u.longitude, u.logo,
+            ({$distance_sql}) AS distance
+        FROM products p
+        JOIN users u ON p.seller_id = u.user_id
+        WHERE p.product_status = 'Available' AND u.latitude IS NOT NULL AND u.longitude IS NOT NULL
+        AND p.category = ?
+        HAVING distance < 20.00 
+        ORDER BY distance ASC
+        LIMIT ?";
+    }
+
     $stmt = $conn->prepare($query);
 
-    $bind_params = ['dddi', $user_lat, $user_lng, $user_lat, $limit];
+    if ($selectedCategory) {
+        // s for category (string), ddd for lat/lng (double), i for limit (integer)
+        $bind_params = ['dddsi', $user_lat, $user_lng, $user_lat, $selectedCategory, $limit];
+    } else {
+        $bind_params = ['dddi', $user_lat, $user_lng, $user_lat, $limit];
+    }
 
     $bind_refs = [];
     foreach ($bind_params as $key => $value) {
@@ -173,14 +198,21 @@ else {
         $searchTerm = '%' . $searchQuery . '%';
         $search_condition = " AND (name LIKE ? OR description LIKE ?)";
         $bind_types = "ss";
-        $bind_params = [$searchTerm, $searchTerm];
+        $bind_params[] = $searchTerm;
+        $bind_params[] = $searchTerm;
+    }
+
+    if ($selectedCategory) {
+        $search_condition .= " AND category = ?";
+        $bind_types .= "s";
+        $bind_params[] = $selectedCategory;
     }
 
     // FALLBACK Query: Show All Available (filtered by text if present)
     $allProductsQuery = "SELECT product_id, name, price, original_price, image, quantity FROM products WHERE product_status = 'Available' {$search_condition} ORDER BY created_at DESC";
     $stmt_all = $conn->prepare($allProductsQuery);
 
-    if ($searchQuery) {
+    if (!empty($bind_params)) {
         $bind_refs = array_merge([$bind_types], $bind_params);
         call_user_func_array([$stmt_all, 'bind_param'], $ref_values($bind_refs));
     }
@@ -214,10 +246,33 @@ else {
         </div>
         <input type="hidden" name="user_lat" id="user_lat" value="<?= htmlspecialchars($user_lat ?? ''); ?>">
         <input type="hidden" name="user_lng" id="user_lng" value="<?= htmlspecialchars($user_lng ?? ''); ?>">
+        <?php if ($selectedCategory): ?>
+            <input type="hidden" name="category" value="<?= htmlspecialchars($selectedCategory); ?>">
+        <?php endif; ?>
     </form>
+
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-8 text-center">
+            <div class="btn-group" role="group" aria-label="Category Filter">
+                <a href="search.php?query=<?= urlencode($searchQuery ?? ''); ?>&user_lat=<?= urlencode($user_lat ?? ''); ?>&user_lng=<?= urlencode($user_lng ?? ''); ?>"
+                    class="btn <?= !$selectedCategory ? 'btn-primary' : 'btn-outline-primary'; ?>">
+                    All
+                </a>
+                <?php foreach ($categories as $cat): ?>
+                    <a href="search.php?category=<?= urlencode($cat); ?>&query=<?= urlencode($searchQuery ?? ''); ?>&user_lat=<?= urlencode($user_lat ?? ''); ?>&user_lng=<?= urlencode($user_lng ?? ''); ?>"
+                        class="btn <?= ($selectedCategory === $cat) ? 'btn-primary' : 'btn-outline-primary'; ?>">
+                        <?= htmlspecialchars($cat); ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
 
     <form class="form-inline justify-content-center mb-4 mx-auto my-5" method="GET" action="search.php">
         <div class="input-group w-50 mx-auto">
+            <?php if ($selectedCategory): ?>
+                <input type="hidden" name="category" value="<?= htmlspecialchars($selectedCategory); ?>">
+            <?php endif; ?>
             <input type="text" class="form-control" name="query" placeholder="Search for products..."
                 value="<?= htmlspecialchars($searchQuery); ?>" required>
             <div class="input-group-append">
