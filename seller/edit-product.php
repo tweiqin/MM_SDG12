@@ -112,9 +112,9 @@ if (isset($_GET['id'])) {
         <div class="mb-3">
             <label for="category" class="form-label">Category</label>
             <select class="form-select" name="category" required>
-                <option value="Hotels" <?= $product['category'] === 'hotels' ? 'selected' : ''; ?>>Hotels</option>
-                <option value="Resaturants & Cafes" <?= $product['category'] === 'restaurants & cafes' ? 'selected' : ''; ?>>Restaurants & Cafes</option>
-                <option value="Bakeries" <?= $product['category'] === 'bakeries' ? 'selected' : ''; ?>>Bakeries</option>
+                <option value="Hotels" <?= $product['category'] === 'Hotels' ? 'selected' : ''; ?>>Hotels</option>
+                <option value="Restaurants & Cafes" <?= $product['category'] === 'Restaurants & Cafes' ? 'selected' : ''; ?>>Restaurants & Cafes</option>
+                <option value="Bakeries" <?= $product['category'] === 'Bakeries' ? 'selected' : ''; ?>>Bakeries</option>
             </select>
         </div>
         <div class="mb-3">

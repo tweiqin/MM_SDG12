@@ -196,9 +196,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="category">Category:</label>
                 <select class="form-control" name="category" id="category" required disabled>
                     <option value="">-- Select Category --</option>
-                    <option value="hotels" <?= (isset($_POST['category']) && $_POST['category'] == 'hotels') ? 'selected' : ''; ?>>Hotels</option>
-                    <option value="restaurants & cafes" <?= (isset($_POST['category']) && $_POST['category'] == 'restaurants & cafes') ? 'selected' : ''; ?>>Resaturants & Cafes</option>
-                    <option value="bakeries" <?= (isset($_POST['category']) && $_POST['category'] == 'bakeries') ? 'selected' : ''; ?>>Bakeries</option>
+                    <option value="Hotels" <?= (isset($_POST['category']) && $_POST['category'] == 'Hotels') ? 'selected' : ''; ?>>Hotels</option>
+                    <option value="Restaurants & Cafes" <?= (isset($_POST['category']) && $_POST['category'] == 'Restaurants & Cafes') ? 'selected' : ''; ?>>Restaurants & Cafes</option>
+                    <option value="Bakeries" <?= (isset($_POST['category']) && $_POST['category'] == 'Bakeries') ? 'selected' : ''; ?>>Bakeries</option>
                 </select>
             </div>
 
