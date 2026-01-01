@@ -1,4 +1,5 @@
 # MakanMystery (MM_SDG12) - tweiqin
+Web Application
 
 ## 🛠 Tech Stack & Tools Used
 
