@@ -1,16 +1,5 @@
 # MakanMystery (MM_SDG12) - tweiqin
 
-**MakanMystery** is a web application dedicated to promoting sustainable consumption and production patterns (SDG 12). It connects users with surplus food items to reduce food waste, featuring a marketplace, an AI-powered chatbot for sustainability tips and a mock secure payment integration.
-
-## 💡 Features
-
-- **Marketplace**: Browse and purchase surplus food items.
-- **AI Chatbot**: "MakanMystery Bot" assists users with questions about sustainability and food preservation.
-- **User Authentication**: Secure login and registration for buyers and sellers.
-- **Admin Dashboard**: Manage products, reviews and user reports.
-- **Payment Integration**: Support for credit cards (Stripe) and other local payment methods.
-- **Responsive Design**: Optimized for both desktop and mobile devices using Bootstrap.
-
 ## 🛠 Tech Stack & Tools Used
 
 ### Frontend
