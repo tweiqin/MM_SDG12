@@ -15,7 +15,7 @@ Web Application
 - **Docker & Docker Compose**: Containerization for consistent development environments.
 - **AWS (Amazon Web Services)**: Cloud infrastructure (EC2, RDS, ALB, ASG).
 - **Terraform**: Infrastructure as Code (IaC) for AWS resource provisioning.
-- **OneDev / GitHub Actions**: CI/CD pipelines (based on project structure).
+- **GitHub Actions**: CI/CD pipelines (based on project structure).
 
 ### Development Tools
 - **VS Code**: Recommended IDE.
