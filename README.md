@@ -2,12 +2,12 @@
 
 **MakanMystery** is a web application dedicated to promoting sustainable consumption and production patterns (SDG 12). It connects users with surplus food items to reduce food waste, featuring a marketplace, an AI-powered chatbot for sustainability tips and a mock secure payment integration.
 
-## 🚀 Features
+## 💡 Features
 
 - **Marketplace**: Browse and purchase surplus food items.
 - **AI Chatbot**: "MakanMystery Bot" assists users with questions about sustainability and food preservation.
 - **User Authentication**: Secure login and registration for buyers and sellers.
-- **Admin Dashboard**: Manage products, reviews, and user reports.
+- **Admin Dashboard**: Manage products, reviews and user reports.
 - **Payment Integration**: Support for credit cards (Stripe) and other local payment methods.
 - **Responsive Design**: Optimized for both desktop and mobile devices using Bootstrap.
 
@@ -110,7 +110,7 @@ The project includes Terraform configuration to deploy the infrastructure on AWS
 5. **Access Cloud Instance**
    After successful deployment, Terraform will output the Load Balancer DNS name or the EC2 public IP. Use that address to access the live application.
 
-## � CI/CD with GitHub Actions
+## 📦 CI/CD with GitHub Actions
 
 This repository includes configured GitHub Actions workflows for automated deployment and teardown. If you fork or clone this repository, you can leverage these workflows.
 
@@ -131,12 +131,14 @@ To make the workflows function correctly, you must configure the following **Rep
 | `GEMINI_API_KEY` | API key for the Google Gemini chatbot feature. |
 
 ### Available Workflows
-- **Deploy**: Automatically builds the Docker image, pushes it to Docker Hub, and applies the Terraform configuration.
-- **Destroy**: Runs `terraform destroy` to tear down all provisioned infrastructure.
+- **1MM - Build and Deploy** (`MM_Deploy.yml`): Full deployment pipeline. Builds the Docker image, pushes to Docker Hub and applies Terraform configuration.
+- **2MM - Database Migration** (`MM_DB_Migrate.yml`): Executes database migration scripts on the EC2 instance via AWS SSM. Requires manual confirmation input.
+- **3MM - Terraform Unlock State** (`MM_Unlock.yml`): Helper workflow to force-unlock the Terraform state if it becomes locked. Requires the Lock ID, need to run 2MM to get the ID.
+- **4MM - Terraform Deploy** (`MM_tf_Deploy.yml`): Infrastructure-only deployment. Runs `terraform apply` without rebuilding the Docker image.
+- **5MM - Destroy Infrastructure** (`MM_Destroy.yml`): Runs `terraform destroy` to tear down all provisioned AWS resources.
 
 
-## �📂 Project Structure
-
+## 📂 Project Structure
 - `/admin` - Admin dashboard files.
 - `/api` - API endpoints (including Chatbot).
 - `/assets` - Static assets (CSS, JS, Images).
