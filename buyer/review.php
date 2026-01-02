@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once '../config/db.php';
-include('../includes/buyerheader.php');
+
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'buyer' || !isset($_GET['order_id'])) {
     header('Location: login.php');
@@ -72,12 +72,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
+<?php include('../includes/buyerheader.php'); ?>
 <div class="container my-5">
     <h2 class="text-center mb-4">Review Order #<?= $order_id; ?></h2>
 
     <?php if (!empty($message)): ?>
         <div class="alert alert-<?php echo strpos($message, 'Thank you') !== false ? 'success' : 'danger'; ?> text-center">
-            <?= $message; ?></div>
+            <?= $message; ?>
+        </div>
     <?php endif; ?>
 
     <form method="POST"
