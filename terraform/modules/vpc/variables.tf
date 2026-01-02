@@ -8,3 +8,8 @@ variable "project_name" {
   description = "Project name to be used for tagging resources"
   type        = string
 }
+
+variable "region" {
+  description = "AWS Region"
+  type        = string
+}
