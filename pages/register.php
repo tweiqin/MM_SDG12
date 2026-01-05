@@ -43,7 +43,7 @@ function is_valid_phone_server($phoneFull)
 // Name: letters, spaces, apostrophe, and @ only
 function is_valid_name($name)
 {
-    return preg_match("/^[A-Za-z@' ]+$/", $name);
+    return preg_match("/^[A-Za-z0-9@' ]+$/", $name);
 }
 
 // Password: min 8 chars, at least one uppercase, one number, one symbol
@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($name) || empty($email) || empty($phone) || empty($address) || empty($password) || empty($confirm_password) || empty($role)) {
         $message = "All core fields are required.";
     } elseif (!is_valid_name($name)) {
-        $message = "Name may only include letters, spaces, apostrophe (') and @.";
+        $message = "Name may only include letters, numbers, spaces, apostrophe (') and @.";
     } elseif (!is_valid_email($email)) {
         $message = "Please enter a valid email address.";
     } elseif (!is_valid_phone_server($phone)) {
@@ -372,7 +372,7 @@ $phone_display_local = format_phone_local_for_display($phone);
         }
 
         // validation rules
-        function isNameValid(v) { return /^[A-Za-z@' ]+$/.test(v); }
+        function isNameValid(v) { return /^[A-Za-z0-9@' ]+$/.test(v); }
         function isPhoneLocalValid(v) {
             // v should be digits only (we remove dashes/spaces on input)
             return /^(1[0-9])(\d{7,8})$/.test(v);
@@ -403,7 +403,7 @@ $phone_display_local = format_phone_local_for_display($phone);
             const val = (el.value || '').trim();
 
             if (fieldId === 'name') {
-                if (!isNameValid(val)) { setErrorById('name', "Name may only contain letters, spaces, apostrophe (') and @."); return false; }
+                if (!isNameValid(val)) { setErrorById('name', "Name may only contain letters, numbers, spaces, apostrophe (') and @."); return false; }
                 clearErrorById('name'); return true;
             }
             if (fieldId === 'phone') {
