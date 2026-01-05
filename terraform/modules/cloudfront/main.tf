@@ -35,7 +35,7 @@ resource "aws_cloudfront_distribution" "main" {
 
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
-    default_ttl            = 0     # Dynamic content, don't cache by default unless headers say so
+    default_ttl            = 0 # Dynamic content, don't cache by default unless headers say so
     max_ttl                = 86400
     compress               = true
   }

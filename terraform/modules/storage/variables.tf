@@ -3,8 +3,6 @@ variable "project_name" {
   type        = string
 }
 
-
-
 variable "upload_sql" {
   description = "Whether to upload an SQL file"
   type        = bool

@@ -127,8 +127,8 @@ module "cloudfront" {
 
 # S3 Storage (Static Assets)
 module "storage" {
-  source        = "./modules/storage"
-  project_name  = var.project_name
+  source       = "./modules/storage"
+  project_name = var.project_name
 
   upload_sql    = true
   sql_file_path = "${path.module}/../mm_sdg12.sql"
