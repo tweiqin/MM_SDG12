@@ -14,6 +14,9 @@ DB_USER=$7
 echo "Starting DB Migration..."
 
 # 1. Install Dependencies
+echo "Waiting for cloud-init to complete..."
+cloud-init status --wait
+
 echo "Installing MySQL Client..."
 apt-get update -y
 apt-get install -y mysql-client awscli
