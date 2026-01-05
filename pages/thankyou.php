@@ -18,8 +18,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <?php include('../includes/buyerheader.php'); ?>
     <div class="container text-center my-5">
         <h1 class="text-success">Thank You!</h1>
-        <p style="font-size:20px">Your order has been successfully placed. We will contact you soon with further
-            details.</p>
+        <p style="font-size:20px">Your order has been successfully placed.</p>
         <a href="index.php" class="btn btn-success" style="font-size:18px">Continue Shopping</a>
         <a href="../buyer/order-history.php" class="btn btn-primary ms-2" style="font-size:18px">View Order History</a>
     </div>
