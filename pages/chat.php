@@ -40,6 +40,7 @@ if ($role === 'buyer') {
     }
     $chat_partner_name = "Seller";
     $chat_partner_display = $seller_name;
+    include('../includes/buyerheader.php');
 } elseif ($role === 'seller') {
     $buyer_id = $_GET['buyer_id'] ?? null;
 
@@ -63,6 +64,7 @@ if ($role === 'buyer') {
 
     $chat_partner_name = "Buyer";
     $chat_partner_display = $buyer['name'];
+    include('../includes/sellerheader.php');
 } else {
     echo "<div class='container mt-5 alert alert-danger'>Invalid role.</div>";
     exit;
@@ -84,105 +86,96 @@ $stmt->execute();
 $messages = $stmt->get_result();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<style>
+    body {
+        background-color: #f1f1f1;
+    }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat - Makan Mystery</title>
-    <link rel="icon" type="image-icon" href="../assets/images/icon.png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f1f1f1;
-        }
+    .chat-box {
+        max-width: 800px;
+        margin: 20px auto;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        height: 80vh;
+    }
 
-        .chat-box {
-            max-width: 800px;
-            margin: auto;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            height: 80vh;
-        }
+    .chat-header {
+        padding: 20px;
+        background-color: #004d40;
+        color: white;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
 
-        .chat-header {
-            padding: 20px;
-            background-color: #004d40;
-            color: white;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-        }
+    .chat-body {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+        display: flex;
+        flex-direction: column;
+    }
 
-        .chat-body {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background-color: #f9f9f9;
-        }
+    .chat-message {
+        max-width: 70%;
+        margin-bottom: 12px;
+        padding: 12px 18px;
+        border-radius: 20px;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
 
-        .chat-message {
-            max-width: 70%;
-            margin-bottom: 12px;
-            padding: 12px 18px;
-            border-radius: 20px;
-            line-height: 1.4;
-        }
+    .mine {
+        background-color: #c8e6c9;
+        margin-left: auto;
+        align-self: flex-end;
+    }
 
-        .mine {
-            background-color: #c8e6c9;
-            margin-left: auto;
-        }
+    .theirs {
+        background-color: #eceff1;
+        margin-right: auto;
+        align-self: flex-start;
+    }
 
-        .theirs {
-            background-color: #eceff1;
-            margin-right: auto;
-        }
+    .chat-footer {
+        padding: 15px;
+        background-color: #eeeeee;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+</style>
 
-        .chat-footer {
-            padding: 15px;
-            background-color: #eeeeee;
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="chat-box">
-        <div class="chat-header">
-            <h5 class="mb-1">Chat about: <?= $product_name ?></h5>
-            <small>You are chatting with <?= $chat_partner_name ?>:
-                <a href="seller-profile.php?seller_id=<?= $seller_id; ?>" class="text-white fw-bold">
-                    <strong><?= htmlspecialchars($chat_partner_display) ?></strong>
-                </a>
-            </small>
-        </div>
-
-        <div class="chat-body">
-            <?php while ($msg = $messages->fetch_assoc()): ?>
-                <div class="chat-message <?= $msg['sender_id'] == $user_id ? 'mine' : 'theirs' ?>">
-                    <div><strong><?= htmlspecialchars($msg['name']) ?>:</strong></div>
-                    <div><?= htmlspecialchars($msg['message']) ?></div>
-                    <div class="text-muted small mt-1 text-end"><?= date('H:i', strtotime($msg['created_at'])) ?></div>
-                </div>
-            <?php endwhile; ?>
-        </div>
-
-        <div class="chat-footer">
-            <form method="POST" class="d-flex">
-                <input type="text" name="message" class="form-control me-2" placeholder="Type your message..." required>
-                <button class="btn btn-success">Send</button>
-            </form>
-        </div>
+<div class="chat-box">
+    <div class="chat-header">
+        <h5 class="mb-1">Chat about: <?= $product_name ?></h5>
+        <small>You are chatting with <?= $chat_partner_name ?>:
+            <a href="seller-profile.php?seller_id=<?= $seller_id; ?>" class="text-white fw-bold">
+                <strong><?= htmlspecialchars($chat_partner_display) ?></strong>
+            </a>
+        </small>
     </div>
 
+    <div class="chat-body">
+        <?php while ($msg = $messages->fetch_assoc()): ?>
+            <div class="chat-message <?= $msg['sender_id'] == $user_id ? 'mine' : 'theirs' ?>">
+                <div><strong><?= htmlspecialchars($msg['name']) ?>:</strong></div>
+                <div><?= htmlspecialchars($msg['message']) ?></div>
+                <div class="text-muted small mt-1 text-end"><?= date('H:i', strtotime($msg['created_at'])) ?></div>
+            </div>
+        <?php endwhile; ?>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="chat-footer">
+        <form method="POST" class="d-flex">
+            <input type="text" name="message" class="form-control me-2" placeholder="Type your message..." required>
+            <button class="btn btn-success">Send</button>
+        </form>
+    </div>
+</div>
+
 </body>
 
 </html>
