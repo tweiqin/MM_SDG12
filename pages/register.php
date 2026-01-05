@@ -82,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (!is_strong_password($password)) {
         $message = "Password must be at least 8 characters and include uppercase letters, numbers and symbols.";
     } elseif ($password !== $confirm_password) {
-        $message = "Passwords do not match.";
+        $message = "Passwords does not match.";
     } else {
         if ($role === 'seller' && ($latitude === '' || $longitude === '')) {
             $message = "As a seller, you must provide your restaurant's latitude and longitude.";
