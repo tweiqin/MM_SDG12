@@ -129,7 +129,7 @@ module "cloudfront" {
 module "storage" {
   source        = "./modules/storage"
   project_name  = var.project_name
-  assets_dir    = "${path.module}/../frontend/public/assets/images"
+
   upload_sql    = true
   sql_file_path = "${path.module}/../mm_sdg12.sql"
 }

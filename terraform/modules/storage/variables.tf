@@ -3,11 +3,7 @@ variable "project_name" {
   type        = string
 }
 
-variable "assets_dir" {
-  description = "Local path to static assets to upload to S3"
-  type        = string
-  default     = ""
-}
+
 
 variable "upload_sql" {
   description = "Whether to upload an SQL file"
